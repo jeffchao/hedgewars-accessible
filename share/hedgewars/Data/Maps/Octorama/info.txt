@@ -1,0 +1,42 @@
+:: NAME
+  octorama
+
+:: TYPE
+  custom hedgewars map 
+ 
+:: VERSION 
+  RC3
+
+:: CHANGELOG
+  : since RC2
+   - max hog count is now 32 instead of 18
+   - preview has eyelashes now ("_")
+  : since RC1
+   - brighter bubbles
+   - darker bubbleborders
+   - preview fixed
+   - right eye of mommy octo fixed
+  : since beta4
+   - bubbles rework
+   - tiny minor fixes
+   - rename to octorama
+  : since beta3
+   - more paddins everywhere (nemo)
+   - no more traps (dead spawns)
+   - big octopuss is now a cross-eyed girl *g* (rbaleksandar)
+   - shades on upper left bubbles are now correct
+   - removed the theme for now since the theme didn't
+     bring anything new but the music (tiyuri)
+ 
+:: DESCRIPTION 
+  just a fun map similar to bubbleflow 
+ 
+:: CREATOR 
+  jesse/jessor - http://geekosphere.org
+ 
+:: RIGHTZ
+  Octopod Vector Art: http://iconicon.net/ (CC)
+
+:: THANKS
+  #woot (irc.teranetworks.de) and claymore
+  for endless testing and support. <3 ya

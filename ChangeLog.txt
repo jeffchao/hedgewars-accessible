@@ -1,0 +1,324 @@
++ features
+* bugfixes
+
+0.9.14 -> 0.9.15:
+ + Ability to create, save and load hand drawn maps
+ + New maps: Capture the Flag (Blizzard) Map
+ + New themes: Christmas
+ + Snowflakes on Christmas/Snow themes accumulates on the ground
+ + New game modifiers: No wind, More wind
+ + New missions: Dangerous ducklings, Diver, Spooky tree, Teamwork
+ + New weapons: Mudball, Drill strike
+ + Many more Lua hooks
+ + Readytimer
+ + Ability to edit seed
+ + Ability to select gameplay scripts
+ + New gameplay scripts: Capture the Flag, No jumping, Random weapon
+ + New Lua unified translation framework
+ + Code refactoring
+ + Max teams upped to 8
+ + Cosmetic enhancements to Napalm strike
+ + Selecting a game scheme selects the corresponding weapon set
+ + Dust when drills dig
+ + New hats: beaver, porkey, sheep
+ + Add density property to Gears
+ + Reworked management of schemes and weapon sets
+ + Will ask before deleting teams, schemes and weapon sets
+ + Explosions detach rope from land
+ + Allow hog speech when not your turn
+
+0.9.13 -> 0.9.14:
+ + New audio tracks
+ + New forts: EvilChicken, Tank
+ + New game modes: AI Survival Mode, Per Hedgehog Ammo, Reset Health, Reset Weapons, Unlimited Attacks
+ + New grave: ring
+ + Over 30 new hats
+ + New themes: Art, Brick, Jungle, Stage
+ + New maps: ShoppaKing, Sticks, TrophyRace (Mission)
+ + New utilities: Portal Gun, Resurrector
+ + New weapons: Flamethrower, Hammer, Old Limburger, Piano Strike, Sticky Mines
+ + Weapons' projectiles will now be launched from their barrels instead of the hog's center
+ + Flying Saucers may be used for moving below the water surface
+ + New default game schemes: Clean Slate, Fort Mode, Timeless, Thinking with Portals, King Mode
+ + New default weapon set: Clean Slate, Thinking with Portals
+ + Bomb clusters/Melon parts inherit some of the original bomb's speed
+ + Extended game statistics
+ + Improved health bar updating
+ + Hogs that blow themselves up will use triggers in their team color
+ + Settings allow better control over the level of details/effects
+ + Improved Lua support
+ + On empty ammo switch to no weapon rather than the first available one (to avoid shooting by accident)
+ + Display of hints in the frontend
+ + Some improvements of existing Themes of Maps
+ + Land destruction effects added
+ + Improved fire effects
+ + Improved Melon explosion effects
+ + Online game lobby now features game filters
+ + Other Frontend enhancements
+ + Additional sounds
+ + Show special game rules in Esc screen
+ + Updated translation
+ + Speed optimizations
+ + Hedgewars will now use a sub directory of "My Documents" like other games instead of "%userprofile%/.hedgewars" under Windows
+ + Added support for graphics cards/drivers that have a 512x512 pixel textures limit
+ + Team colors are more distinguishable from each other now
+ * Fixed bug that allowed charging a weapon while on rope, leading to frozen timer
+ * Various bug fixes
+
+0.9.12 -> 0.9.13:
+ + Speed optimizations
+ + New weapon: Birdy (carries your hog and lets you throw poisonous eggs at your foes)
+ + Hats are visible while using rope and blowtorch
+ + Explosive barrels
+ + AI is able to handle artillery mode as well as new weapons
+ + Weapon schemes now include crate probability as well as delays
+ + Optional semi transparent labels for hogs to avoid hidden gaps
+ + New voicepack: British
+ + New frontend sounds
+ + Frontend now allows you to add player names to either your friends or ignore list and join their current rooms (follow)
+ + Optional tooltips explaining weapons in weapons menu
+ + 3D effect for waves
+ + Game now fades in/out at the start and end of a round
+ + Flashlight effect when taking screenshots
+ + Holding 'precise' key now allows hogs to change direction without moving
+ + New game modes: place hedgehogs, king mode, randomized starting order, shared ammo, no girders
+ + Improved CJK text handling and detection
+ + Dud mines
+ + Reserved hats for donators (reservation time is limited; they'll be useable by everyone some months later)
+ + Added team flags (pick your country or your favorite 'fun' flag)
+ + Active team's name blinking on round start
+ + Team chat for spectators
+ + New explosion graphics with screen shakes for huge explosions
+ + Hogs might react to thrown grenades or explosives and panic
+ + Popup effects visualizing collected weapons
+ + New visual effects (dust, smoke, gun shells)
+ + Replaced the UFO with the Homing Bee
+ + View ammo menu even while other player's turn
+ + Preview alternate weapon while using another one (e.g. parachute, rope and flying saucer)
+ + Splashes and droplets once objects fall into water
+ + 45 degree bounce for grenades
+ + New bounce sounds for most objects
+ + Several new sounds for hedgehogs including walking animation and some emotes
+ + Show special game rules at round's start
+ + Support for Lua scripts (used for tutorials as well as 'mission' maps)
+ + Changed Basketball map to be a mission including scoreboards
+ + Added Knockball mission
+ + New crazy map template
+ + New random map generator supporting maze type maps
+ + New game schemes: Barrel Mayhem, Tunnel Hogs
+ + New weapon scheme: Tunnel Hogs
+ + New themes: Olympics, Desert
+ + Lots of other updates to other themes
+ + Background textures for destroyed land simulating depth (on random maps only)
+ + New target cursors
+ + Many new hats
+ + Additional effects
+ + Icon for hwengine under windows
+ + Delete old teams using the frontend
+ + Support for long localized strings (longer than 255 bytes)
+ + Xfire support (shows nickname, server and room name in player info)
+ * Fixed showing two cursors in some situations
+ * Drill rocket's sound will now stop even after drilling right into water
+ * Properly unload SDL_mixer's support libraries on engine shutdown
+ * Fixed several memory leaks
+ + Lots of other bug fixes and additions we already forgot during this huge release
+ + Updated translation
+ + PowerPC architecture supported
+ * Reduced memory footprint and leakage
+
+0.9.11 -> 0.9.12:
+ + Zoom
+ + New weapons: flying saucer, molotov cocktail
+ + More sounds
+ + New visual effects
+ + Updated graphics
+ + Chat within team only
+ + Remember net password
+ + More trainings
+ + Implement room control delegation when host's connection fails
+ + Colorize chat events in engine
+ + [mac only] Add Sparkle framework to automatically update the program when a new version comes out
+ + [mac only] Add M3InstallController for easy installation
+ * Fix crash in replay caused by speechbubbles
+ * Fix some desync causes
+ * Fix rope bugs
+ * Fix bugs in weapon selection code
+
+0.9.10 -> 0.9.11:
+ + Speech bubbles
+ + Many new hats, new graves
+ + New taunts
+ + New voice pack, new default voice
+ + Animated stars in frontend's background
+ + New music
+ + Vampirism weapon and game mode, karma mode
+ + Artillery mode
+ + Sniper rifle
+ + Options for mine delay/quantity
+ * Fix disconnection from server not been performed correctly
+ * Don't crash engine after round in reduced quality mode
+ * Fix game desync when oneof players quits
+ * Hedgehogs don't take hat off when jumping
+ * Fix initial room map config desync
+ * Fix team name in training
+ * Fix crash in parachute/rope if drowning with active girder/teleport
+ * Fix rope disappearing bug
+
+0.9.9 -> 0.9.10:
+ + Many new hats, maps, themes, updates on existing ones
+ + Remove small pixels left by fire
+ + Double possible land dimensions, allow up to 48 hedgehogs in game
+ + Brand new net server
+ + Cave mode
+ + Initial sound volume option
+ + Increase rendering speed and overall graphics performance
+ + New game options
+ + Game schemes
+ + New voicepack
+ + Reduced quality mode for better performance on old computers
+ + Random teams generator
+ + Many utilities
+ + Templates filter
+ + Water bouncing
+ * Fix underwater theme soundtrack
+ * Fix blowtorch delete condition
+ * Fix crash when attackbar wasn't deleted, but hedgehog gear was
+ * Fix spectating when one of players left the game
+ * Fix accidental rope removing from ammo in some cases
+ * Prevent engine crash when not enough place for all hedgehogs
+ * Fix bug with not working toggles 'rectrict joins' and 'restrict team adding'
+ + Fix engine slowdown when trying to switch ammo while firing bazooka
+
+0.9.8 -> 0.9.9:
+ + Voicepacks
+ + Teams health graphic on statistics page
+ + Colorize join/quit messages in chat
+ + Precise aiming
+ + RC Plane weapon
+ * Fix ballgun breaking net game on 64bit systems
+ * Fix bug when hedgehog was unable to drop some weapons from rope in certain conditions
+ * Fix page switching issues when disconnected
+ * Fix rope bug which allowed hedgehog to go into land
+ * Fix cake stucking up in air on some maps
+ * Fix three cursor bugs
+ * Fix autogenerated demos/saves filenames problems
+ * Fix engine freeze when switching hedgehog in certain conditions
+
+0.9.7 -> 0.9.8:
+ + Many net server fixes
+ + Lobby on net server
+ + Napalm weapon
+ + Drill rocket and Ballgun weapons
+ + Show quit reason message
+ + Solid Land option
+ + New maps
+ + Many new forts
+ + Improve Hellish hand grenade
+ + Spectating for those who joined after game start
+ * Fix silent crash when cannot place all hedgehogs
+ * Fix small damage tag issues
+ * Fix a bug leading to engine silent crash when using whip, bat or firepunch (and probably flame)
+ * Limit chat history to 250 entries to avoid DoS attack with its use
+
+0.9.6 -> 0.9.7:
+ + Completely redesign the frontend, no longer looks like an ugly program launcher
+ + New art
+ + Add fullscreen mode to frontend
+ + New Castle map
+ + All map rendering now 32bit / theme objects have alpha channels
+ + Bath, Freeway, Hell, Sheep, Underwater themes
+ + PirateFlag, Sheep maps
+ + Seduction weapon
+ + Dedicated server
+ + Increase possible length of team and Hedgehog names
+ + New music
+ + Ability to customize your hedgehogs with a variety of hats
+ + Ability to customize water colour in themes
+ + Watermelon Bomb Weapon
+ + Hellish Hand Grenade Weapon
+ + /me now works in chat
+ + Ability to divide teams on any map
+ * Fix rope getting stuck bug
+ * Make soundtrack loop better
+ * Fixed small glitch with placing girders
+ * Fixed grenade sound
+ * AI uses the mortar better
+
+0.9.5 -> 0.9.6:
+ + New Cake weapon
+ + New maps: EarthRise, Bamboo, Bath, BambooPlinko
+ + New theme EarthRise
+ + Add soundtracks for each theme
+ + Show picked up ammo name when playing demo
+ + Make engine fonts bold
+ + Small sound improvements
+ * Fix clouds shaking up
+ * Repair screenshots capturing
+
+0.9.4 -> 0.9.5:
+ + Taunts
+ + Exit confirmation dialog
+ + Sudden death
+ + Maps added: Hydrant, Lonely Island
+ + Updated mushroom map
+ + Translations added: German, Slovak, Bulgarian, French
+ + More impressive exposions
+ * Fix bad sprite when you jump and get hit
+
+0.9.3 -> 0.9.4:
+ + In game chat is now implemented, chat (and taunt!) your buddies during network play
+ + Mortar, whip and Kamikaze weapon additions
+ + Two new themes, desert island and city
+ + New maps
+ + New animations, including an idle animation!
+ + Rope reworked, much greater momentum, ability to aim the rope between swings
+ + AI updates
+ + Teams now work in fort mode, i.e. 2v2
+ + Ability to attack whilst jumping/rope swinging
+ + Some weapons can only be used after a certain number of turns 
+ + Lots of new graphics
+ * Many network/gameplay bug fixes
+
+0.9.2 -> 0.9.3:
+ + Switch to OpenGL rendering
+ + Massive graphics update
+ + New animations, weapon sprites
+ + New themes 'Snow' and 'Nature'
+ + Many new sounds
+ + Hedgehog backjump
+ + Automated parachute
+ + Hedgehog can jump even when someone is on its head
+ * Improve and bugfix statistics
+ * Fix bug allowing to make stack of hedgehogs using teleport
+ * Fix fall without damage trick, which could be performed with not attached rope
+ * Don't show enemy's picked weapon name
+ * Fix hedgehog moving direction after been shot by shotgun
+ * Fix bug with handling keys while it is enemy's turn
+
+0.9 -> 0.9.2:
+
+ + Add registration of net game in web
+ + Introduce weapons sets support
+ + Add teleportation tool
+ + Add hedgehogs switching tool
+ + Add tags with current damage (alt damage option on options page)
+ + A couple of new land templates
+ + Decrease network bandwidth usage
+ + Add clans support (teams with identical colors are allies)
+ + 's' key speeds up demo playing
+ + Easter egg
+ + Full saves support, 'Saved games' page
+ + Add ability to choose which info is shown above hedgehogs
+ + AI can use Air Attack weapon
+ + Get possible screen resolutions from SDL library
+ + Add Desert Eagle and UFO sounds
+ + Add parachute sprite
+ + Add training mode
+ + New theme and map 'Volcano'
+ + Moving hedgehog could make another hedgehog moving kicking him
+ + Save and restore window size on application restart
+ * Fix using parachute while staying on the ground
+ * Fix old rope regression (attaching didn't work properly, when hedgehog is jumping)
+ * Fix AI jumping to wrong direction on the turn start
+ * Fix rare conditions causing network game to randomly fail
+ * Make missiles collide with attacking hedgehog
