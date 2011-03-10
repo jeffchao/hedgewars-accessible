@@ -1,0 +1,138 @@
+# OS X
+.DS_Store
+._*
+.Spotlight-v100
+.Trashes
+
+# Linux
+*.sw[a-p]
+
+# VI
+*.swp
+*.swo
+.*.sw[a-z]
+*.un~
+
+# C++
+# Compiled objects
+*.slo
+*.lo
+*.o
+
+# Compiled dynamic libraries
+*.so
+
+# Compiled static libraries
+*.lai
+*.la
+*.a
+
+# Xcode
+build/*
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.xcworkspace
+!default.xcworkspace
+xcuserdata
+profile
+*.moved-aside
+
+# Eclipse
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+# CDT-specific
+.cproject
+
+# Visual Studio
+# User-specific files
+*.suo
+*.user
+
+# Build results
+Debug/
+Release/
+*.obj
+.builds
+
+# Visual C++ cache files
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+
+# Visual Studio profiler
+*.psess
+*.vsp
+
+# ReSharper is a .NET coding add-in
+_ReSharper*
+
+# DocProject is a documentation generator add-in
+DocProject/buildhelp/
+DocProject/Help/*.HxT
+DocProject/Help/*.HxC
+DocProject/Help/*.hhc
+DocProject/Help/*.hhk
+DocProject/Help/*.hhp
+DocProject/Help/Html2
+DocProject/Help/html
+
+# Click-Once directory
+publish
+
+# Others
+bin
+Bin
+obj
+Obj
+sql
+TestResults
+*.Cache
+ClientBin
+stylecop.*
+~$*
+*.dbmdl
+
+# Windows image file caches
+Thumbs.db 
+
+# Folder config file
+Desktop.ini
+
+# TextMate
+*.tmproj
+*.tmproject
+tmtags
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.tar.gz
+*.zip
+*.bzip
+
