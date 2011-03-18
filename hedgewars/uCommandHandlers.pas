@@ -1,4 +1,23 @@
+(*
+ * Hedgewars, a free turn based strategy game
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ *)
+
 {$INCLUDE "options.inc"}
+
 unit uCommandHandlers;
 
 interface
@@ -23,25 +42,39 @@ end;
 procedure chQuit(var s: shortstring);
 const prevGState: TGameState = gsConfirm;
 begin
-s:= s; // avoid compiler hint
-if GameState <> gsConfirm then
-        begin
+    s:= s; // avoid compiler hint
+    if GameState <> gsConfirm then
+    begin
         prevGState:= GameState;
         GameState:= gsConfirm
-        end else
-        GameState:= prevGState
+    end else
+    GameState:= prevGState
+end;
+
+procedure chForceQuit(var s: shortstring);
+begin
+    s:= s; // avoid compiler hint
+    GameState:= gsConfirm;
+    ParseCommand('confirm', true);
 end;
 
 procedure chConfirm(var s: shortstring);
 begin
-s:= s; // avoid compiler hint
-if GameState = gsConfirm then
+    s:= s; // avoid compiler hint
+    if GameState = gsConfirm then
     begin
-    SendIPC('Q');
-    GameState:= gsExit
+        SendIPC('Q');
+        GameState:= gsExit
     end
 else
     ParseCommand('chat team', true);
+end;
+
+procedure chHalt (var s: shortstring);
+begin
+    s:= s; // avoid compiler hint
+    SendIPC('H');
+    GameState:= gsExit
 end;
 
 procedure chCheckProto(var s: shortstring);
@@ -292,7 +325,7 @@ if CheckNoTeamOrHH or isPaused then exit;
 bShowFinger:= false;
 with CurrentHedgehog^.Gear^ do
     begin
-    {$IFDEF DEBUGFILE}AddFileLog('/+attack: hedgehog''s Gear^.State = '+inttostr(State));{$ENDIF}
+    AddFileLog('/+attack: hedgehog''s Gear^.State = '+inttostr(State));
     if ((State and gstHHDriven) <> 0) then
         begin
         FollowGear:= CurrentHedgehog^.Gear;
@@ -333,9 +366,7 @@ begin
     TryDo(AllInactive, '/nextturn called when not all gears are inactive', true);
 
     if not CurrentTeam^.ExtDriven then SendIPC('N');
-{$IFDEF DEBUGFILE}
     AddFileLog('Doing SwitchHedgehog: time '+inttostr(GameTicks));
-{$ENDIF}
 end;
 
 procedure chTimer(var s: shortstring);
@@ -575,14 +606,15 @@ begin
     RegisterVariable('minesnum', vtLongInt, @cLandMines     , false);
     RegisterVariable('explosives',vtLongInt,@cExplosives    , false);
     RegisterVariable('gmflags' , vtLongInt, @GameFlags      , false);
-    RegisterVariable('trflags' , vtLongInt, @TrainingFlags  , false);
     RegisterVariable('turntime', vtLongInt, @cHedgehogTurnTime, false);
     RegisterVariable('minestime',vtLongInt, @cMinesTime     , false);
     RegisterVariable('fort'    , vtCommand, @chFort         , false);
     RegisterVariable('grave'   , vtCommand, @chGrave        , false);
     RegisterVariable('hat'     , vtCommand, @chSetHat       , false);
     RegisterVariable('quit'    , vtCommand, @chQuit         , true );
+    RegisterVariable('forcequit', vtCommand, @chForceQuit   , true );
     RegisterVariable('confirm' , vtCommand, @chConfirm      , true );
+    RegisterVariable('halt',     vtCommand, @chHalt         , true );
     RegisterVariable('+speedup', vtCommand, @chSpeedup_p    , true );
     RegisterVariable('-speedup', vtCommand, @chSpeedup_m    , true );
     RegisterVariable('zoomin'  , vtCommand, @chZoomIn       , true );

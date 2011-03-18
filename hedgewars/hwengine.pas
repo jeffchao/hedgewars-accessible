@@ -1,6 +1,6 @@
 (*
 * Hedgewars, a free turn based strategy game
-* Copyright (c) 2004-2010 Andrey Korotaev <unC0Rr@gmail.com>
+* Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ uses SDLh, uMisc, uConsole, uGame, uConsts, uLand, uAmmos, uVisualGears, uGears,
 {$IFDEF HWLIBRARY}
 procedure initEverything(complete:boolean);
 procedure freeEverything(complete:boolean);
+procedure Game(gameArgs: PPChar); cdecl; export;
 
 implementation
 {$ELSE}
@@ -60,6 +61,7 @@ begin
         gsStart: begin
                 if HasBorder then DisableSomeWeapons;
                 AddClouds;
+                AddFlakes;
                 AssignHHCoords;
                 AddMiscGears;
                 StoreLoad;
@@ -102,7 +104,7 @@ begin
         end;
 
 {$IFDEF SDL13}
-    SDL_RenderPresent();
+    SDL_RenderPresent(SDLrender);
 {$ELSE}
     SDL_GL_SwapBuffers();
 {$ENDIF}
@@ -113,8 +115,7 @@ begin
         s:= 'hw_' + FormatDateTime('YYYY-MM-DD_HH-mm-ss', Now()) + inttostr(GameTicks);
         WriteLnToConsole('Saving ' + s + '...');
         playSound(sndShutter);
-        MakeScreenshot(s);
-        //SDL_SaveBMP_RW(SDLPrimSurface, SDL_RWFromFile(Str2PChar(s), 'wb'), 1)
+        {$IFNDEF IPHONEOS}MakeScreenshot(s);{$ENDIF}
     end;
 end;
 
@@ -128,7 +129,8 @@ begin
     CloseIPC();
     TTF_Quit();
 {$IFDEF SDL13}
-    SDL_DestroyRenderer(SDLwindow);
+    SDL_RenderClear(SDLrender);
+    SDL_DestroyRenderer(SDLrender);
     SDL_DestroyWindow(SDLwindow);
 {$ENDIF}
     SDL_Quit();
@@ -156,8 +158,8 @@ begin
                         cHasFocus:= true;
 {$ELSE}
                     KeyPressChat(event.key.keysym.unicode);
-                SDL_MOUSEBUTTONDOWN: if event.button.button = SDL_BUTTON_WHEELDOWN then uKeys.wheelDown:= true;
-                SDL_MOUSEBUTTONUP: if event.button.button = SDL_BUTTON_WHEELUP then uKeys.wheelUp:= true;
+                SDL_MOUSEBUTTONDOWN: if event.button.button = SDL_BUTTON_WHEELDOWN then wheelDown:= true;
+                SDL_MOUSEBUTTONUP: if event.button.button = SDL_BUTTON_WHEELUP then wheelUp:= true;
                 SDL_ACTIVEEVENT:
                     if (event.active.state and SDL_APPINPUTFOCUS) <> 0 then
                         cHasFocus:= event.active.gain = 1;
@@ -200,9 +202,7 @@ procedure Game;
 {$ENDIF}
 var p: TPathType;
     s: shortstring;
-{$IFDEF DEBUGFILE}
     i: LongInt;
-{$ENDIF}
 begin
 {$IFDEF HWLIBRARY}
     cBits:= 32;
@@ -225,22 +225,22 @@ begin
     cAltDamage:= gameArgs[8] = '1';
     val(gameArgs[9], rotationQt);
     recordFileName:= gameArgs[10];
+    cStereoMode:= smNone;
 {$ENDIF}
 
     cLogfileBase:= 'game';
     initEverything(true);
+
     WriteLnToConsole('Hedgewars ' + cVersionString + ' engine (network protocol: ' + inttostr(cNetProtoVersion) + ')');
-{$IFDEF DEBUGFILE}
     AddFileLog('Prefix: "' + PathPrefix +'"');
     for i:= 0 to ParamCount do
         AddFileLog(inttostr(i) + ': ' + ParamStr(i));
-{$ENDIF}
 
     for p:= Succ(Low(TPathType)) to High(TPathType) do
         if p <> ptMapCurrent then Pathz[p]:= PathPrefix + '/' + Pathz[p];
 
     WriteToConsole('Init SDL... ');
-    SDLTry(SDL_Init(SDL_INIT_VIDEO) >= 0, true);
+    SDLTry(SDL_Init(SDL_INIT_VIDEO or SDL_INIT_NOPARACHUTE) >= 0, true);
     WriteLnToConsole(msgOK);
 
     SDL_EnableUNICODE(1);
@@ -380,7 +380,7 @@ begin
         //uGame does not need to be freed
         //uFloat does not need to be freed
         uCollisions.freeModule;     //stub
-        uChat.freeModule;           //stub
+        uChat.freeModule;
         uAmmos.freeModule;
         uAIMisc.freeModule;         //stub
         //uAIAmmoTests does not need to be freed

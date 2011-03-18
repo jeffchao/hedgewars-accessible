@@ -1,6 +1,6 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2005-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2005-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,8 @@ enum GameState {
     gsInterrupted = 2,
     gsFinished = 3,
     gsStopped = 4,
-    gsDestroyed = 5
+    gsDestroyed = 5,
+    gsHalted = 6
 };
 
 bool checkForDir(const QString & dir);

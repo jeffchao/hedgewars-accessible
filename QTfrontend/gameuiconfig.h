@@ -1,6 +1,6 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2006-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2006-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ class GameUIConfig : public QSettings
     Q_OBJECT
 
 public:
+    HWForm * Form;
     GameUIConfig(HWForm * FormWidgets, const QString & fileName);
     QStringList GetTeamsList();
     QRect vid_Resolution();
@@ -52,6 +53,7 @@ public:
     bool isFrontendEffects() const;
     bool isFrontendFullscreen() const;
     void resizeToConfigValues();
+    quint32 stereoMode() const;
 
 #ifdef __APPLE__
 #ifdef SPARKLE_ENABLED
@@ -66,7 +68,6 @@ public slots:
     void SaveOptions();
 
 private:
-    HWForm * Form;
     quint8 depth;
 };
 

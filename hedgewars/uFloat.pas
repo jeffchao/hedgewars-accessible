@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2007, 2008 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -352,9 +352,7 @@ end;
 
 function AngleSin(const Angle: Longword): hwFloat;
 begin
-{$IFDEF DEBUGFILE}
 //TryDo((Angle >= 0) and (Angle <= 2048), 'Sin param exceeds limits', true);
-{$ENDIF}
 AngleSin.isNegative:= false;
 if Angle < 1024 then AngleSin.QWordValue:= SinTable[Angle]
                 else AngleSin.QWordValue:= SinTable[2048 - Angle]
@@ -362,9 +360,7 @@ end;
 
 function AngleCos(const Angle: Longword): hwFloat;
 begin
-{$IFDEF DEBUGFILE}
 //TryDo((Angle >= 0) and (Angle <= 2048), 'Cos param exceeds limits', true);
-{$ENDIF}
 AngleCos.isNegative:= Angle > 1024;
 if Angle < 1024 then AngleCos.QWordValue:= SinTable[1024 - Angle]
                 else AngleCos.QWordValue:= SinTable[Angle - 1024]

@@ -1,6 +1,6 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2006-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2006-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -117,6 +117,7 @@ About::About(QWidget * parent) :
             "Finnish: Nina Kuisma &lt;<a href=\"mailto:ninnnu@gmail.com\">ninnnu@gmail.com</a>&gt;<br>"
             "French: Antoine Turmel &lt;<a href=\"mailto:geekshadow@gmail.com\">geekshadow@gmail.com</a>&gt;<br>"
             "German: Peter Hüwe &lt;<a href=\"mailto:PeterHuewe@gmx.de\">PeterHuewe@gmx.de</a>&gt;, Mario Liebisch &lt;<a href=\"mailto:mario.liebisch@gmail.com\">mario.liebisch@gmail.com</a>&gt;<br>"
+            "Greek: &lt;<a href=\"mailto:talos_kriti@yahoo.gr\">talos_kriti@yahoo.gr</a>&gt;"
             "Italian: Luca Bonora &lt;<a href=\"mailto:bonora.luca@gmail.com\">bonora.luca@gmail.com</a>&gt;<br>"
             "Japanese: ADAM Etienne &lt;<a href=\"mailto:etienne.adam@gmail.com\">etienne.adam@gmail.com</a>&gt;<br>"
             "Korean: Anthony Bellew &lt;<a href=\"mailto:webmaster@anthonybellew.com\">webmaster@anthonybellew.com</a>&gt;<br>"
@@ -126,7 +127,7 @@ About::About(QWidget * parent) :
             "Slovak: Jose Riha<br>"
             "Spanish: Carlos Vives &lt;<a href=\"mailto:mail@carlosvives.es\">mail@carlosvives.es</a>&gt;<br>"
             "Swedish: Niklas Grahn &lt;<a href=\"mailto:raewolusjoon@yaoo.com\">raewolusjoon@yaoo.com</a>&gt;, Henrik Rostedt &lt;<a href=\"mailto:henrik.rostedt@gmail.com\">henrik.rostedt@gmail.com</a>&gt;<br>"
-            "Ukrainian: Eugene V. Lyubimkin &lt;<a href=\"mailto:jackyf.devel@gmail.com\">jackyf.devel@gmail.com</a>&gt;, Igor Paliychuk &lt;<a href=\"mailto:igor-hkr@mail.ru\">igor-hkr@mail.ru</a>&gt;, Yevhen Sakara &lt;<a href=\"mailto:eresid@gmail.com\">eresid@gmail.com</a>&gt;"
+            "Ukrainian: Eugene V. Lyubimkin &lt;<a href=\"mailto:jackyf.devel@gmail.com\">jackyf.devel@gmail.com</a>&gt;, Igor Paliychuk &lt;<a href=\"mailto:mansonigor@gmail.com\">mansonigor@gmail.com</a>&gt;, Eugene Sakara &lt;<a href=\"mailto:eresid@gmail.com\">eresid@gmail.com</a>&gt;"
             "</p><h2>") +
 
             QLabel::tr("Special thanks:") + "</h2><p>"

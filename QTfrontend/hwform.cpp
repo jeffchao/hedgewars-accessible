@@ -1,6 +1,6 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2005-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2005-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include <QTableView>
 #include <QCryptographicHash>
 #include <QSignalMapper>
+#include <QShortcut>
 
 #include "hwform.h"
 #include "game.h"
@@ -104,6 +105,10 @@ HWForm::HWForm(QWidget *parent)
     if (updater && config->isAutoUpdateEnabled())
         updater->checkForUpdates();
 #endif
+#else
+    // ctrl+q closes frontend for consistency
+    QShortcut *closeFrontend = new QShortcut(QKeySequence("Ctrl+Q"), this);
+    connect (closeFrontend, SIGNAL(activated()), this, SLOT(close()));
 #endif
 
     UpdateTeamsLists();
@@ -545,7 +550,7 @@ void HWForm::GoBack()
             GoBack();
 
     if (curid == ID_PAGE_ROOMSLIST) NetDisconnect();
-    if (curid == ID_PAGE_NETGAME) hwnet->partRoom();
+    if (curid == ID_PAGE_NETGAME && hwnet) hwnet->partRoom();
     // need to work on this, can cause invalid state for admin quit trying to prevent bad state message on kick
     //if (curid == ID_PAGE_NETGAME && (!game || game->gameState != gsStarted)) hwnet->partRoom();
 
@@ -697,7 +702,7 @@ void HWForm::PlayDemo()
 
 void HWForm::NetConnectServer(const QString & host, quint16 port)
 {
-    _NetConnect(host, port, ui.pageOptions->editNetNick->text());
+    _NetConnect(host, port, ui.pageOptions->editNetNick->text().trimmed());
 }
 
 void HWForm::NetConnectOfficialServer()
@@ -792,6 +797,8 @@ void HWForm::_NetConnect(const QString & hostName, quint16 port, const QString &
         hwnet, SLOT(chatLineToLobby(const QString&)));
     connect(hwnet, SIGNAL(chatStringLobby(const QString&)),
         ui.pageRoomsList->chatWidget, SLOT(onChatString(const QString&)));
+    connect(hwnet, SIGNAL(chatStringLobby(const QString&, const QString&)),
+        ui.pageRoomsList->chatWidget, SLOT(onChatString(const QString&, const QString&)));
     connect(hwnet, SIGNAL(chatStringFromMeLobby(const QString&)),
         ui.pageRoomsList->chatWidget, SLOT(onChatString(const QString&)));
 
@@ -963,7 +970,7 @@ void HWForm::GameStateChanged(GameState gameState)
             Music(ui.pageOptions->CBEnableFrontendMusic->isChecked());
             if (wBackground) wBackground->startAnimation();
             GoToPage(ID_PAGE_GAMESTATS);
-            if (hwnet && (!game || !game->netSuspend)) hwnet->gameFinished();
+            if (hwnet && (!game || !game->netSuspend)) hwnet->gameFinished(true);
             if (game) game->netSuspend = false;
             break;
         }
@@ -974,12 +981,13 @@ void HWForm::GameStateChanged(GameState gameState)
             if (id == ID_PAGE_INGAME ||
 // was room chief and the game was aborted
                 (hwnet && hwnet->isRoomChief() && hwnet->isInRoom() && 
-                    (gameState == gsInterrupted || gameState == gsStopped || gameState == gsDestroyed))) {
+                    (gameState == gsInterrupted || gameState == gsStopped || gameState == gsDestroyed || gameState == gsHalted))) {
                 if (id == ID_PAGE_INGAME) GoBack();
                 Music(ui.pageOptions->CBEnableFrontendMusic->isChecked());
                 if (wBackground) wBackground->startAnimation();
-                if (hwnet) hwnet->gameFinished();
+                if (hwnet) hwnet->gameFinished(false);
             }
+            if (gameState == gsHalted) close();
         };
     }
 }
@@ -1008,6 +1016,10 @@ void HWForm::GetRecord(bool isDemo, const QByteArray & record)
             config->appendDateTimeToRecordName() ?
                 QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm") :
                 "LastRound";
+
+    QStringList versionParts = cVersionString->split('-');
+    if ( (versionParts.size() == 2) && (!versionParts[1].isEmpty()) && (versionParts[1].contains(':')) )
+        recordFileName = recordFileName + "_" + versionParts[1].replace(':','-');
 
     if (isDemo)
     {

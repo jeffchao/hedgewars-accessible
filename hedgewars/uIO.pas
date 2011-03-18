@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2004, 2005, 2007, 2008 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,6 @@
 unit uIO;
 interface
 uses SDLh, uTypes;
-
-var ipcPort: Word = 0;
-    hiTicks: Word;
 
 procedure initModule;
 procedure freeModule;
@@ -99,18 +96,18 @@ end;
 procedure InitIPC;
 var ipaddr: TIPAddress;
 begin
-WriteToConsole('Init SDL_Net... ');
-SDLTry(SDLNet_Init = 0, true);
-fds:= SDLNet_AllocSocketSet(1);
-SDLTry(fds <> nil, true);
-WriteLnToConsole(msgOK);
-WriteToConsole('Establishing IPC connection... ');
-{$HINTS OFF}
-SDLTry(SDLNet_ResolveHost(ipaddr, '127.0.0.1', ipcPort) = 0, true);
-{$HINTS ON}
-IPCSock:= SDLNet_TCP_Open(ipaddr);
-SDLTry(IPCSock <> nil, true);
-WriteLnToConsole(msgOK)
+    WriteToConsole('Init SDL_Net... ');
+    SDLTry(SDLNet_Init = 0, true);
+    fds:= SDLNet_AllocSocketSet(1);
+    SDLTry(fds <> nil, true);
+    WriteLnToConsole(msgOK);
+    WriteToConsole('Establishing IPC connection to tcp 127.0.0.1:' + IntToStr(ipcPort) + ' ');
+    {$HINTS OFF}
+    SDLTry(SDLNet_ResolveHost(ipaddr, '127.0.0.1', ipcPort) = 0, true);
+    {$HINTS ON}
+    IPCSock:= SDLNet_TCP_Open(ipaddr);
+    SDLTry(IPCSock <> nil, true);
+    WriteLnToConsole(msgOK)
 end;
 
 procedure CloseIPC;
@@ -124,7 +121,7 @@ procedure ParseIPCCommand(s: shortstring);
 var loTicks: Word;
 begin
 case s[1] of
-     '!': begin {$IFDEF DEBUGFILE}AddFileLog('Ping? Pong!');{$ENDIF}isPonged:= true; end;
+     '!': begin AddFileLog('Ping? Pong!'); isPonged:= true; end;
      '?': SendIPC('!');
      'e': ParseCommand(copy(s, 2, Length(s) - 1), true);
      'E': OutError(copy(s, 2, Length(s) - 1), true);
@@ -139,7 +136,7 @@ case s[1] of
      else
      loTicks:= SDLNet_Read16(@s[byte(s[0]) - 1]);
      AddCmd(loTicks, s);
-     {$IFDEF DEBUGFILE}AddFileLog('[IPC in] '+s[1]+' ticks '+IntToStr(lastcmd^.loTime));{$ENDIF}
+     AddFileLog('[IPC in] '+s[1]+' ticks '+IntToStr(lastcmd^.loTime));
      end
 end;
 
@@ -220,7 +217,7 @@ if IPCSock <> nil then
     SendEmptyPacketTicks:= 0;
     if s[0]>#251 then s[0]:= #251;
     SDLNet_Write16(GameTicks, @s[Succ(byte(s[0]))]);
-    {$IFDEF DEBUGFILE}AddFileLog('[IPC out] '+ s[1]);{$ENDIF}
+    AddFileLog('[IPC out] '+ s[1]);
     inc(s[0], 2);
     SDLNet_TCP_Send(IPCSock, @s, Succ(byte(s[0])))
     end
@@ -247,7 +244,7 @@ end;
 procedure SendIPCTimeInc;
 const timeinc: shortstring = '#';
 begin
-{$IFDEF DEBUGFILE}AddFileLog('[IPC out] <time increment>');{$ENDIF}
+AddFileLog('[IPC out] <time increment>');
 SendIPCRaw(@timeinc, 2)
 end;
 
@@ -327,7 +324,7 @@ while (headcmd <> nil)
         'F': ParseCommand('teamgone ' + copy(headcmd^.str, 2, Pred(headcmd^.len)), true);
         'N': begin
             tmpflag:= false;
-            {$IFDEF DEBUGFILE}AddFileLog('got cmd "N": time '+IntToStr(hiTicks shl 16 + headcmd^.loTime)){$ENDIF}
+            AddFileLog('got cmd "N": time '+IntToStr(hiTicks shl 16 + headcmd^.loTime))
             end;
         'p': begin
             x16:= SDLNet_Read16(@(headcmd^.X));
@@ -405,7 +402,7 @@ with CurrentHedgehog^.Gear^,
             TargetPoint.X:= putX;
             TargetPoint.Y:= putY
             end;
-        {$IFDEF DEBUGFILE}AddFilelog('put: ' + inttostr(TargetPoint.X) + ', ' + inttostr(TargetPoint.Y));{$ENDIF}
+        AddFileLog('put: ' + inttostr(TargetPoint.X) + ', ' + inttostr(TargetPoint.Y));
         State:= State and not gstHHChooseTarget;
         if (Ammoz[CurAmmoType].Ammo.Propz and ammoprop_AttackingPut) <> 0 then
             Message:= Message or (gmAttack and InputMask);
@@ -431,7 +428,6 @@ end;
 
 procedure freeModule;
 begin
-    ipcPort:= 0;
 end;
 
 end.

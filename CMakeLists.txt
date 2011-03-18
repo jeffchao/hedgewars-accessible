@@ -8,7 +8,8 @@ IF(POLICY CMP0012)
 ENDIF()
 
 #detect Mercurial revision (if present)
-#set(version_suffix "-dev") #UNSET THIS VARIABLE AT RELEASE TIME
+set(version_suffix "-dev") #UNSET THIS VARIABLE AT RELEASE TIME
+set(HGCHANGED "")
 IF(version_suffix MATCHES "-dev")
 	set(HW_DEV true)
 	IF (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.hg)
@@ -18,8 +19,13 @@ IF(version_suffix MATCHES "-dev")
 				     ARGS identify -in ${CMAKE_CURRENT_SOURCE_DIR}
 				     OUTPUT_VARIABLE version_suffix
 				     )
+			STRING(REGEX REPLACE "[^+]" "" HGCHANGED ${version_suffix})
 			STRING(REGEX REPLACE "([0-9a-zA-Z]+)(.*) ([0-9]+)(.*)" "\\3:\\1" version_suffix ${version_suffix})
-			MESSAGE(STATUS "Building revision ${version_suffix}")
+			IF (HGCHANGED)
+				MESSAGE(STATUS "Building revision ${version_suffix} (SOURCE CODE MODIFIED)")
+			ELSE()
+				MESSAGE(STATUS "Building revision ${version_suffix}")
+			ENDIF()
 			set(version_suffix "-${version_suffix}")
 		ENDIF()
 	ENDIF()
@@ -31,7 +37,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules)
 
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
 set(CPACK_PACKAGE_VERSION_MINOR "9")
-set(CPACK_PACKAGE_VERSION_PATCH "15${version_suffix}")
+set(CPACK_PACKAGE_VERSION_PATCH "16${version_suffix}")
 
 #forbid in-tree building
 #IF (${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_BINARY_DIR})
@@ -77,7 +83,6 @@ if(APPLE)
 
 	set(CMAKE_OSX_ARCHITECTURES "i386;ppc7400")
 
-
 	#create universal binaries only when it's time to bundle the application, also build server
 	IF(BUNDLE)
 		set(WITH_SERVER true)
@@ -86,7 +91,11 @@ if(APPLE)
 			set(CMAKE_CXX_COMPILER "g++-4.0")
 		else()
 			if(current_macosx_version MATCHES "10.6")
-				set(CMAKE_OSX_ARCHITECTURES "x86_64")
+				if(MACAPPSTORE)
+					set(CMAKE_OSX_ARCHITECTURES "x86_64;i386")
+				else()
+					set(CMAKE_OSX_ARCHITECTURES "x86_64")
+				endif()
 			endif()
 		endif()
 	ELSE()
@@ -150,10 +159,10 @@ set(pascal_compiler_flags_cmn "-B" "-FE../bin" "-Cs2000000" "-vewn" ${pascal_com
 if(Optz)
 #	set(pascal_compiler_flags_cmn "-O3" "-OpPENTIUM4" "-CfSSE3" "-Xs" "-Si" ${pascal_compiler_flags_cmn})
 	set(pascal_compiler_flags_cmn "-O2" "-Xs" "-Si" ${pascal_compiler_flags_cmn})
-	set(haskell_compiler_flags_cmn "-O2" "-w")
+	set(haskell_compiler_flags_cmn "-O2" "-w" "-fno-warn-unused-do-bind")
 else(Optz)
 	set(pascal_compiler_flags_cmn "-O-" "-g" "-gh" "-gl" "-dDEBUGFILE" ${pascal_compiler_flags_cmn})
-	set(haskell_compiler_flags_cmn "-Wall" "-debug" "-dcore-lint")
+	set(haskell_compiler_flags_cmn "-Wall" "-debug" "-dcore-lint" "-fno-warn-unused-do-bind")
 endif(Optz)
 
 
@@ -165,7 +174,7 @@ endif()
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 set(HEDGEWARS_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-set(HEDGEWARS_PROTO_VER 37)
+set(HEDGEWARS_PROTO_VER 38)
 
 if(WITH_SERVER)
 	message(STATUS "Server is going to be built! Make sure you have GHC installed")
@@ -239,13 +248,14 @@ set(CPACK_SOURCE_IGNORE_FILES
 	"release$"
 	"Debug$"
 	"Release$"
-	"proto.inc$"
-	"hwconsts.cpp$"
-	"playlist.inc$"
+	"proto\\\\.inc$"
+	"hwconsts\\\\.cpp$"
+	"playlist\\\\.inc$"
 	"CPack"
-	"cmake_install.cmake$"
-	"config.inc$"
-	"hwengine.desktop$"
+	"cmake_install\\\\.cmake$"
+	"config\\\\.inc$"
+	"hwengine\\\\.desktop$"
+	"CMakeCache\\\\.txt$"
 #   "^${CMAKE_CURRENT_SOURCE_DIR}/misc/libopenalbridge"
 	"^${CMAKE_CURRENT_SOURCE_DIR}/project_files/HedgewarsMobile/"
 	"^${CMAKE_CURRENT_SOURCE_DIR}/bin/[a-z]"

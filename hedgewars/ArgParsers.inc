@@ -1,3 +1,20 @@
+(*
+ * Hedgewars, a free turn based strategy game
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ *)
 
 procedure internalSetGameTypeLandPreviewFromParameters();
 begin
@@ -8,6 +25,7 @@ begin
 end;
 
 procedure internalStartGameWithParameters();
+var tmp: LongInt;
 begin
     val(ParamStr(2), cScreenWidth);
     val(ParamStr(3), cScreenHeight);
@@ -23,7 +41,9 @@ begin
     cAltDamage:= ParamStr(13) = '1';
     UserNick:= DecodeBase64(ParamStr(14));
     val(ParamStr(15), cReducedQuality);
-    cLocaleFName:= ParamStr(16)
+    val(ParamStr(16), tmp);
+    cStereoMode:= TStereoMode(max(0, min(ord(high(TStereoMode)), tmp)));
+    cLocaleFName:= ParamStr(17);
 end;
 
 procedure setVideo(screenWidth: LongInt; screenHeight: LongInt; bitsStr: LongInt);

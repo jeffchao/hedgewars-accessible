@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2004-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,14 +50,19 @@ uses LuaPas in 'LuaPas.pas',
     uSound,
     uChat,
     uStats,
+    uStore,
     uRandom,
     uTypes,
     uVariables,
     uCommands,
     uUtils,
-    uKeys,
     uCaptions,
-    uDebug;
+    uDebug,
+    uCollisions,
+    uRenderUtils,
+    uTextures,
+    uLandGraphics,
+    SDLh; 
 
 var luaState : Plua_State;
     ScriptAmmoLoadout : shortstring;
@@ -272,6 +277,7 @@ begin
         t:= lua_tointeger(L, 7);
 
         gear:= AddGear(x, y, gt, s, dx, dy, t);
+        lastGearByUID:= gear;
         lua_pushinteger(L, gear^.uid)
         end;
     lc_addgear:= 1; // 1 return value
@@ -311,8 +317,12 @@ begin
         s:= lua_tointeger(L, 4);
         c:= lua_toboolean(L, 5);
 
-        vg:= AddVisualGear(x, y, vgt, s, c); 
-        if vg <> nil then lua_pushinteger(L, vg^.uid)
+        vg:= AddVisualGear(x, y, vgt, s, c);
+        if vg <> nil then 
+            begin
+            lastVisualGearByUID:= vg;
+            lua_pushinteger(L, vg^.uid)
+            end
         else lua_pushinteger(L, 0)
         end;
     lc_addvisualgear:= 1; // 1 return value
@@ -357,6 +367,11 @@ begin
             lua_pushinteger(L, vg^.State);
             lua_pushinteger(L, vg^.Timer);
             lua_pushinteger(L, vg^.Tint);
+            end
+        else
+            begin
+            lua_pushnil(L); lua_pushnil(L); lua_pushnil(L); lua_pushnil(L); lua_pushnil(L);
+            lua_pushnil(L); lua_pushnil(L); lua_pushnil(L); lua_pushnil(L); lua_pushnil(L)
             end
         end;
     lc_getvisualgearvalues:= 10;
@@ -537,6 +552,56 @@ begin
     lc_getclancolor:= 1
 end;
 
+function lc_setclancolor(L : Plua_State) : LongInt; Cdecl;
+var clan : PClan;
+    team : PTeam;
+    hh   : THedgehog;
+    i, j : LongInt;
+    r, rr: TSDL_Rect;
+    texsurf: PSDL_Surface;
+begin
+    if lua_gettop(L) <> 2 then
+        LuaError('Lua: Wrong number of parameters passed to SetClanColor!')
+    else
+        begin
+        clan := ClansArray[lua_tointeger(L, 1)];
+        clan^.Color:= lua_tointeger(L, 2) shr 8;
+        for i:= 0 to Pred(clan^.TeamsNumber) do
+            begin
+            team:= clan^.Teams[i];
+            for j:= 0 to 7 do
+                begin
+                hh:= team^.Hedgehogs[j];
+                if (hh.Gear <> nil) or (hh.GearHidden <> nil) then 
+                    begin
+                    FreeTexture(hh.NameTagTex);
+                    hh.NameTagTex:= RenderStringTex(hh.Name, clan^.Color, fnt16);
+                    RenderHealth(hh);
+                    end;
+                end;
+            FreeTexture(team^.NameTagTex);
+            team^.NameTagTex:= RenderStringTex(clan^.Teams[i]^.TeamName, clan^.Color, fnt16);
+            r.w:= cTeamHealthWidth + 5;
+            r.h:= team^.NameTagTex^.h;
+
+            texsurf:= SDL_CreateRGBSurface(SDL_SWSURFACE, r.w, r.h, 32, RMask, GMask, BMask, AMask);
+            TryDo(texsurf <> nil, errmsgCreateSurface, true);
+            TryDo(SDL_SetColorKey(texsurf, SDL_SRCCOLORKEY, 0) = 0, errmsgTransparentSet, true);
+
+            DrawRoundRect(@r, cWhiteColor, cNearBlackColorChannels.value, texsurf, true);
+            rr:= r;
+            inc(rr.x, 2); dec(rr.w, 4); inc(rr.y, 2); dec(rr.h, 4);
+            DrawRoundRect(@rr, clan^.Color, clan^.Color, texsurf, false);
+
+            FreeTexture(team^.HealthTex);
+            team^.HealthTex:= Surface2Tex(texsurf, false);
+            SDL_FreeSurface(texsurf);
+            MakeCrossHairs
+            end
+        end;
+    lc_setclancolor:= 0
+end;
+
 function lc_gethogteamname(L : Plua_State) : LongInt; Cdecl;
 var gear : PGear;
 begin
@@ -715,6 +780,38 @@ begin
         end
     else LuaError('Lua: Wrong number of parameters passed to HogSay!');
     lc_hogsay:= 0
+end;
+
+function lc_switchhog(L : Plua_State) : LongInt; Cdecl;
+var gear, prevgear : PGear;
+begin
+    if lua_gettop(L) <> 1 then
+        LuaError('Lua: Wrong number of parameters passed to SwitchHog!')
+    else
+        begin
+        gear:= GearByUID(lua_tointeger(L, 1));
+// should we allow this when there is no current hedgehog? might do some odd(er) things to turn sequence.
+        if (gear <> nil) and (gear^.Kind = gtHedgehog) and (gear^.Hedgehog <> nil) and (CurrentHedgehog <> nil) then
+            begin
+            prevgear := CurrentHedgehog^.Gear;
+            prevgear^.Active := false;
+            prevgear^.State:= prevgear^.State and not gstHHDriven;
+            prevgear^.Z := cHHZ;
+            RemoveGearFromList(prevgear);
+            InsertGearToList(prevgear);
+
+            CurrentHedgehog := gear^.Hedgehog;
+// yes, this will muck up turn sequence
+            CurrentTeam := gear^.Hedgehog^.Team;
+
+            gear^.State:= gear^.State or gstHHDriven;
+            gear^.Active := true;
+            gear^.Z := cCurrHHZ;
+            RemoveGearFromList(gear);
+            InsertGearToList(gear);
+            end
+        end;
+    lc_switchhog:= 0
 end;
 
 function lc_addammo(L : Plua_State) : LongInt; Cdecl;
@@ -962,6 +1059,7 @@ end;
 
 function lc_setgearposition(L : Plua_State) : LongInt; Cdecl;
 var gear: PGear;
+    col: boolean;
     x, y: LongInt;
 begin
     if lua_gettop(L) <> 3 then
@@ -971,11 +1069,14 @@ begin
         gear:= GearByUID(lua_tointeger(L, 1));
         if gear <> nil then
             begin
+            col:= gear^.CollisionIndex >= 0;
             x:= lua_tointeger(L, 2);
             y:= lua_tointeger(L, 3);
+            if col then DeleteCI(gear);
             gear^.X:= int2hwfloat(x);
             gear^.Y:= int2hwfloat(y);
-            SetAllToActive;
+            if col then AddGearCI(gear);
+            SetAllToActive
             end
         end;
     lc_setgearposition:= 0
@@ -1118,6 +1219,82 @@ begin
         lua_pushboolean(L, hasBorder);
     lc_maphasborder:= 1
 end;
+
+function lc_getgearradius(L : Plua_State) : LongInt; Cdecl;
+var gear : PGear;
+begin
+    if lua_gettop(L) <> 1 then
+        begin
+        LuaError('Lua: Wrong number of parameters passed to GetGearRadius!');
+        lua_pushnil(L); // return value on stack (nil)
+        end
+    else
+        begin
+        gear:= GearByUID(lua_tointeger(L, 1));
+        if gear <> nil then
+            lua_pushinteger(L, gear^.Radius)
+        else
+            lua_pushnil(L);
+        end;
+    lc_getgearradius:= 1
+end;
+
+function lc_gethoghat(L : Plua_State): LongInt; Cdecl;
+var gear : PGear;
+begin
+    if lua_gettop(L) <> 1 then
+        LuaError('Lua: Wrong number of parameters passed to GetHogHat!')
+    else begin
+        gear := GearByUID(lua_tointeger(L, 1));
+        if (gear <> nil) and (gear^.Kind = gtHedgehog) and (gear^.Hedgehog <> nil) then
+            lua_pushstring(L, str2pchar(gear^.Hedgehog^.Hat))
+        else
+            lua_pushnil(L);
+    end;
+    lc_gethoghat := 1;
+end;
+
+function lc_sethoghat(L : Plua_State) : LongInt; Cdecl;
+var gear : PGear;
+    hat: ShortString;
+begin
+    if lua_gettop(L) <> 2 then
+        begin
+        LuaError('Lua: Wrong number of parameters passed to SetHogHat!');
+        lua_pushnil(L)
+        end
+    else
+        begin
+        gear:= GearByUID(lua_tointeger(L, 1));
+        if (gear <> nil) and (gear^.Kind = gtHedgehog) and (gear^.Hedgehog <> nil) then
+            hat:= lua_tostring(L, 2);
+            gear^.Hedgehog^.Hat:= hat;
+            LoadHedgehogHat(gear, hat);
+        end;
+    lc_sethoghat:= 0;
+end;
+
+function lc_placegirder(L : Plua_State) : LongInt; Cdecl;
+begin
+    if lua_gettop(L) <> 3 then
+        LuaError('Lua: Wrong number of parameters passed to PlaceGirder!')
+    else
+        TryPlaceOnLand(
+            lua_tointeger(L, 1) - SpritesData[sprAmGirder].Width div 2,
+            lua_tointeger(L, 2) - SpritesData[sprAmGirder].Height div 2,
+            sprAmGirder, lua_tointeger(L, 3), true, false);
+    lc_placegirder:= 0
+end;
+
+function lc_getcurammotype(L : Plua_State): LongInt; Cdecl;
+var gear : PGear;
+begin
+    if lua_gettop(L) <> 0 then
+        LuaError('Lua: Wrong number of parameters passed to GetCurAmmoType!')
+    else
+        lua_pushinteger(L, ord(CurrentHedgehog^.CurAmmoType));
+    lc_getcurammotype := 1;
+end;
 ///////////////////
 
 procedure ScriptPrintStack;
@@ -1196,6 +1373,7 @@ ScriptSetInteger('WaterRise', cWaterRise);
 ScriptSetInteger('HealthDecrease', cHealthDecrease);
 ScriptSetString('Map', '');
 ScriptSetString('Theme', '');
+ScriptSetString('Goals', '');
 
 ScriptCall('onGameInit');
 
@@ -1220,6 +1398,7 @@ if ScriptGetString('Map') <> '' then
     ParseCommand('map ' + ScriptGetString('Map'), true);
 if ScriptGetString('Theme') <> '' then
     ParseCommand('theme ' + ScriptGetString('Theme'), true);
+LuaGoals:= ScriptGetString('Goals');
 
 if ScriptExists('onAmmoStoreInit') then
     begin
@@ -1425,6 +1604,7 @@ ScriptSetInteger('gfResetWeps', gfResetWeps);
 ScriptSetInteger('gfPerHogAmmo', gfPerHogAmmo);
 ScriptSetInteger('gfDisableWind', gfDisableWind);
 ScriptSetInteger('gfMoreWind', gfMoreWind);
+ScriptSetInteger('gfTagTeam', gfTagTeam);
 
 ScriptSetInteger('gmLeft', gmLeft);
 ScriptSetInteger('gmRight', gmRight);
@@ -1503,6 +1683,7 @@ lua_register(luaState, 'GetHealth', @lc_gethealth);
 lua_register(luaState, 'SetEffect', @lc_seteffect);
 lua_register(luaState, 'GetHogClan', @lc_gethogclan);
 lua_register(luaState, 'GetClanColor', @lc_getclancolor);
+lua_register(luaState, 'SetClanColor', @lc_setclancolor);
 lua_register(luaState, 'GetHogTeamName', @lc_gethogteamname);
 lua_register(luaState, 'GetHogName', @lc_gethogname);
 lua_register(luaState, 'GetHogLevel', @lc_gethoglevel);
@@ -1520,16 +1701,22 @@ lua_register(luaState, 'GetTimer', @lc_gettimer);
 lua_register(luaState, 'SetZoom', @lc_setzoom);
 lua_register(luaState, 'GetZoom', @lc_getzoom);
 lua_register(luaState, 'HogSay', @lc_hogsay);
+lua_register(luaState, 'SwitchHog', @lc_switchhog);
 lua_register(luaState, 'HogTurnLeft', @lc_hogturnleft);
 lua_register(luaState, 'CampaignLock', @lc_campaignlock);
 lua_register(luaState, 'CampaignUnlock', @lc_campaignunlock);
 lua_register(luaState, 'GetGearElasticity', @lc_getgearelasticity);
+lua_register(luaState, 'GetGearRadius', @lc_getgearradius);
 lua_register(luaState, 'GetGearMessage', @lc_getgearmessage);
 lua_register(luaState, 'SetGearMessage', @lc_setgearmessage);
 lua_register(luaState, 'GetRandom', @lc_getrandom);
 lua_register(luaState, 'SetWind', @lc_setwind);
 lua_register(luaState, 'GetDataPath', @lc_getdatapath);
 lua_register(luaState, 'MapHasBorder', @lc_maphasborder);
+lua_register(luaState, 'GetHogHat', @lc_gethoghat);
+lua_register(luaState, 'SetHogHat', @lc_sethoghat);
+lua_register(luaState, 'PlaceGirder', @lc_placegirder);
+lua_register(luaState, 'GetCurAmmoType', @lc_getcurammotype);
 
 
 ScriptClearStack; // just to be sure stack is empty

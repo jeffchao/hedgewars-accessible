@@ -1,106 +1,90 @@
+{-# LANGUAGE OverloadedStrings, DeriveDataTypeable #-}
 module CoreTypes where
 
-import System.IO
-import Control.Concurrent.Chan
-import Control.Concurrent.STM
+import Control.Concurrent
 import Data.Word
 import qualified Data.Map as Map
-import qualified Data.IntMap as IntMap
-import qualified Data.IntSet as IntSet
 import Data.Sequence(Seq, empty)
 import Data.Time
 import Network
 import Data.Function
+import Data.ByteString.Char8 as B
+import Data.Unique
+import Control.Exception
+import Data.Typeable
+import Data.TConfig
+-----------------------
+import RoomsAndClients
 
+type ClientChan = Chan [B.ByteString]
 
 data ClientInfo =
     ClientInfo
     {
-        clientUID :: !Int,
-        sendChan :: Chan [String],
-        clientHandle :: Handle,
-        host :: String,
+        clUID :: Unique,
+        sendChan :: ClientChan,
+        clientSocket :: Socket,
+        host :: B.ByteString,
         connectTime :: UTCTime,
-        nick :: String,
-        webPassword :: String,
+        nick :: B.ByteString,
+        webPassword :: B.ByteString,
         logonPassed :: Bool,
         clientProto :: !Word16,
-        roomID :: !Int,
+        roomID :: RoomIndex,
         pingsQueue :: !Word,
         isMaster :: Bool,
-        isReady :: Bool,
+        isReady :: !Bool,
         isAdministrator :: Bool,
-        clientClan :: String,
+        clientClan :: Maybe B.ByteString,
         teamsInGame :: Word
     }
 
-instance Show ClientInfo where
-    show ci = show (clientUID ci)
-            ++ " nick: " ++ (nick ci)
-            ++ " host: " ++ (host ci)
-
 instance Eq ClientInfo where
-    (==) = (==) `on` clientHandle
+    (==) = (==) `on` clientSocket
 
 data HedgehogInfo =
-    HedgehogInfo String String
+    HedgehogInfo B.ByteString B.ByteString
 
 data TeamInfo =
     TeamInfo
     {
-        teamownerId :: !Int,
-        teamowner :: String,
-        teamname :: String,
-        teamcolor :: String,
-        teamgrave :: String,
-        teamfort :: String,
-        teamvoicepack :: String,
-        teamflag :: String,
+        teamownerId :: ClientIndex,
+        teamowner :: B.ByteString,
+        teamname :: B.ByteString,
+        teamcolor :: B.ByteString,
+        teamgrave :: B.ByteString,
+        teamfort :: B.ByteString,
+        teamvoicepack :: B.ByteString,
+        teamflag :: B.ByteString,
         difficulty :: Int,
         hhnum :: Int,
         hedgehogs :: [HedgehogInfo]
     }
 
-instance Show TeamInfo where
-    show ti = "owner: " ++ (teamowner ti)
-            ++ "name: " ++ (teamname ti)
-            ++ "color: " ++ (teamcolor ti)
-
 data RoomInfo =
     RoomInfo
     {
-        roomUID :: !Int,
-        masterID :: !Int,
-        name :: String,
-        password :: String,
+        masterID :: ClientIndex,
+        name :: B.ByteString,
+        password :: B.ByteString,
         roomProto :: Word16,
         teams :: [TeamInfo],
         gameinprogress :: Bool,
         playersIn :: !Int,
         readyPlayers :: !Int,
-        playersIDs :: IntSet.IntSet,
         isRestrictedJoins :: Bool,
         isRestrictedTeams :: Bool,
-        roundMsgs :: Seq String,
-        leftTeams :: [String],
+        roundMsgs :: Seq B.ByteString,
+        leftTeams :: [B.ByteString],
         teamsAtStart :: [TeamInfo],
-        params :: Map.Map String [String]
+        mapParams :: Map.Map B.ByteString B.ByteString,
+        params :: Map.Map B.ByteString [B.ByteString]
     }
 
-instance Show RoomInfo where
-    show ri = show (roomUID ri)
-            ++ ", players ids: " ++ show (IntSet.size $ playersIDs ri)
-            ++ ", players: " ++ show (playersIn ri)
-            ++ ", ready: " ++ show (readyPlayers ri)
-            ++ ", teams: " ++ show (teams ri)
-
-instance Eq RoomInfo where
-    (==) = (==) `on` roomUID
-
-newRoom = (
+newRoom :: RoomInfo
+newRoom =
     RoomInfo
-        0
-        0
+        (error "No room master defined")
         ""
         ""
         0
@@ -108,14 +92,17 @@ newRoom = (
         False
         0
         0
-        IntSet.empty
         False
         False
         Data.Sequence.empty
         []
         []
-        (Map.singleton "MAP" ["+rnd+"])
-    )
+        (
+            Map.fromList $ Prelude.zipWith (,)
+                ["MAP", "MAPGEN", "MAZE_SIZE", "SEED", "TEMPLATE"]
+                ["+rnd+", "0", "0", "seed", "0"]
+        )
+        (Map.singleton "SCHEME" ["Default"])
 
 data StatisticsInfo =
     StatisticsInfo
@@ -128,61 +115,83 @@ data ServerInfo =
     ServerInfo
     {
         isDedicated :: Bool,
-        serverMessage :: String,
-        serverMessageForOldVersions :: String,
+        serverMessage :: B.ByteString,
+        serverMessageForOldVersions :: B.ByteString,
         latestReleaseVersion :: Word16,
+        earliestCompatibleVersion :: Word16,
         listenPort :: PortNumber,
         nextRoomID :: Int,
-        dbHost :: String,
-        dbLogin :: String,
-        dbPassword :: String,
-        lastLogins :: [(String, UTCTime)],
-        stats :: TMVar StatisticsInfo,
+        dbHost :: B.ByteString,
+        dbName :: B.ByteString,
+        dbLogin :: B.ByteString,
+        dbPassword :: B.ByteString,
+        bans :: [BanInfo],
+        restartPending :: Bool,
         coreChan :: Chan CoreMessage,
-        dbQueries :: Chan DBQuery
+        dbQueries :: Chan DBQuery,
+        serverConfig :: Maybe Conf
     }
 
-instance Show ServerInfo where
-    show si = "Server Info"
 
-newServerInfo = (
+newServerInfo :: Chan CoreMessage -> Chan DBQuery -> Maybe Conf -> ServerInfo
+newServerInfo =
     ServerInfo
         True
         "<h2><p align=center><a href=\"http://www.hedgewars.org/\">http://www.hedgewars.org/</a></p></h2>"
-        "<font color=yellow><h3 align=center>Hedgewars 0.9.15 is out! Please update.</h3><p align=center><a href=http://hedgewars.org/download.html>Download page here</a></font>"
-        37
+        "<font color=yellow><h3 align=center>Hedgewars 0.9.16 is out! Please update.</h3><p align=center><a href=http://hedgewars.org/download.html>Download page here</a></font>"
+        39
+        31 -- 0.9.13
         46631
         0
         ""
         ""
         ""
+        ""
         []
-    )
+        False
 
 data AccountInfo =
-    HasAccount String Bool
+    HasAccount B.ByteString Bool
     | Guest
     | Admin
     deriving (Show, Read)
 
 data DBQuery =
-    CheckAccount Int String String
+    CheckAccount ClientIndex Int B.ByteString B.ByteString
     | ClearCache
     | SendStats Int Int
     deriving (Show, Read)
 
 data CoreMessage =
     Accept ClientInfo
-    | ClientMessage (Int, [String])
-    | ClientAccountInfo (Int, AccountInfo)
+    | ClientMessage (ClientIndex, [B.ByteString])
+    | ClientAccountInfo ClientIndex Int AccountInfo
     | TimerAction Int
+    | Remove ClientIndex
 
-type Clients = IntMap.IntMap ClientInfo
-type Rooms = IntMap.IntMap RoomInfo
+type MRnC = MRoomsAndClients RoomInfo ClientInfo
+type IRnC = IRoomsAndClients RoomInfo ClientInfo
 
---type ClientsTransform = [ClientInfo] -> [ClientInfo]
---type RoomsTransform = [RoomInfo] -> [RoomInfo]
---type HandlesSelector = ClientInfo -> [ClientInfo] -> [RoomInfo] -> [ClientInfo]
---type Answer = ServerInfo -> (HandlesSelector, [String])
+data Notice =
+    NickAlreadyInUse
+    | AdminLeft
+    deriving Enum
 
-type ClientsSelector = Clients -> Rooms -> [Int]
+data ShutdownException =
+    ShutdownException
+    | RestartException
+     deriving (Show, Typeable)
+
+instance Exception ShutdownException
+
+data ShutdownThreadException = ShutdownThreadException String
+     deriving Typeable
+
+instance Show ShutdownThreadException where
+    show (ShutdownThreadException s) = s
+instance Exception ShutdownThreadException
+
+data BanInfo =
+    BanByIP B.ByteString B.ByteString UTCTime
+    | BanByNick B.ByteString B.ByteString UTCTime
+    deriving (Show, Read)

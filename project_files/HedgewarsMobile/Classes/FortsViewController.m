@@ -1,0 +1,160 @@
+/*
+ * Hedgewars-iOS, a Hedgewars port for iOS devices
+ * Copyright (c) 2009-2011 Vittorio Giovara <vittorio.giovara@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ * File created on 08/04/2010.
+ */
+
+
+#import "FortsViewController.h"
+#import "CommodityFunctions.h"
+#import "UIImageExtra.h"
+
+#define IMGNUM_PER_FORT 4
+
+@implementation FortsViewController
+@synthesize teamDictionary, fortArray, lastIndexPath;
+
+
+-(BOOL) shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation) interfaceOrientation {
+    return rotationManager(interfaceOrientation);
+}
+
+
+#pragma mark -
+#pragma mark View lifecycle
+-(void) viewDidLoad {
+    [super viewDidLoad];
+
+    NSArray *directoryContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:FORTS_DIRECTORY() error:NULL];
+    NSMutableArray *filteredContents = [[NSMutableArray alloc] initWithCapacity:([directoryContents count] / 3)];
+    // we need to remove the double entries and the L.png suffix
+    for (int i = 0; i < [directoryContents count]; i++) {
+        if (i % IMGNUM_PER_FORT == 3) {
+            NSString *currentName = [directoryContents objectAtIndex:i];
+            NSString *correctName = [currentName substringToIndex:([currentName length] - 5)];
+            [filteredContents addObject:correctName];
+        }
+    }
+    self.fortArray = filteredContents;
+    [filteredContents release];
+
+    // statically set row height instead of using delegate method for performance reasons
+    self.tableView.rowHeight = 128;
+
+    self.title = NSLocalizedString(@"Choose team fort",@"");
+}
+
+
+-(void) viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.tableView reloadData];
+    [self.tableView setContentOffset:CGPointMake(0,0) animated:NO];
+}
+
+
+#pragma mark -
+#pragma mark Table view data source
+-(NSInteger) numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+-(NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return [self.fortArray count];
+}
+
+// Customize the appearance of table view cells.
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *CellIdentifier = @"Cell";
+
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil)
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle
+                                       reuseIdentifier:CellIdentifier] autorelease];
+
+    NSString *fortName = [fortArray objectAtIndex:[indexPath row]];
+    cell.textLabel.text = fortName;
+
+    NSString *fortFile = [[NSString alloc] initWithFormat:@"%@/%@-preview.png", FORTS_DIRECTORY(), fortName];
+    UIImage *fortSprite = [[UIImage alloc] initWithContentsOfFile:fortFile];
+    [fortFile release];
+    cell.imageView.image = fortSprite;
+    [fortSprite release];
+
+    //cell.detailTextLabel.text = @"Insert funny description here";
+    if ([cell.textLabel.text isEqualToString:[self.teamDictionary objectForKey:@"fort"]]) {
+        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        self.lastIndexPath = indexPath;
+    } else {
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    }
+
+    return cell;
+}
+
+
+#pragma mark -
+#pragma mark Table view delegate
+-(void) tableView:(UITableView *)aTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    int newRow = [indexPath row];
+    int oldRow = (lastIndexPath != nil) ? [lastIndexPath row] : -1;
+
+    if (newRow != oldRow) {
+        // if the two selected rows differ update data on the hog dictionary and reload table content
+        [self.teamDictionary setValue:[fortArray objectAtIndex:newRow] forKey:@"fort"];
+
+        // tell our boss to write this new stuff on disk
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"setWriteNeedTeams" object:nil];
+
+        UITableViewCell *newCell = [aTableView cellForRowAtIndexPath:indexPath];
+        newCell.accessoryType = UITableViewCellAccessoryCheckmark;
+        UITableViewCell *oldCell = [aTableView cellForRowAtIndexPath:lastIndexPath];
+        oldCell.accessoryType = UITableViewCellAccessoryNone;
+        self.lastIndexPath = indexPath;
+        [aTableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
+    }
+    [aTableView deselectRowAtIndexPath:indexPath animated:YES];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+
+#pragma mark -
+#pragma mark Memory management
+-(void) didReceiveMemoryWarning {
+    self.lastIndexPath = nil;
+    MSG_MEMCLEAN();
+    [super didReceiveMemoryWarning];
+}
+
+-(void) viewDidUnload {
+    self.teamDictionary = nil;
+    self.lastIndexPath = nil;
+    self.fortArray = nil;
+    MSG_DIDUNLOAD();
+    [super viewDidUnload];
+}
+
+
+-(void) dealloc {
+    [teamDictionary release];
+    [lastIndexPath release];
+    [fortArray release];
+    [super dealloc];
+}
+
+
+@end
+

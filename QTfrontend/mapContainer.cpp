@@ -1,6 +1,6 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2006-2008 Igor Ulyanov <iulyanov@gmail.com>
+ * Copyright (c) 2006-2011 Igor Ulyanov <iulyanov@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -140,7 +140,7 @@ map, mapInfo);
     }
     chooseMap->insertSeparator(missionindex); // separator between missions and maps
 
-    connect(chooseMap, SIGNAL(currentIndexChanged(int)), this, SLOT(mapChanged(int)));
+    connect(chooseMap, SIGNAL(activated(int)), this, SLOT(mapChanged(int)));
     mapLayout->addWidget(chooseMap, 1, 1);
 
     QLabel * lblMap = new QLabel(tr("Map"), mapWidget);
@@ -149,32 +149,32 @@ map, mapInfo);
     lblFilter = new QLabel(tr("Filter"), mapWidget);
     mapLayout->addWidget(lblFilter, 2, 0);
 
-    CB_TemplateFilter = new QComboBox(mapWidget);
-    CB_TemplateFilter->addItem(tr("All"), 0);
-    CB_TemplateFilter->addItem(tr("Small"), 1);
-    CB_TemplateFilter->addItem(tr("Medium"), 2);
-    CB_TemplateFilter->addItem(tr("Large"), 3);
-    CB_TemplateFilter->addItem(tr("Cavern"), 4);
-    CB_TemplateFilter->addItem(tr("Wacky"), 5);
-    mapLayout->addWidget(CB_TemplateFilter, 2, 1);
+    cbTemplateFilter = new QComboBox(mapWidget);
+    cbTemplateFilter->addItem(tr("All"), 0);
+    cbTemplateFilter->addItem(tr("Small"), 1);
+    cbTemplateFilter->addItem(tr("Medium"), 2);
+    cbTemplateFilter->addItem(tr("Large"), 3);
+    cbTemplateFilter->addItem(tr("Cavern"), 4);
+    cbTemplateFilter->addItem(tr("Wacky"), 5);
+    mapLayout->addWidget(cbTemplateFilter, 2, 1);
 
-    connect(CB_TemplateFilter, SIGNAL(currentIndexChanged(int)), this, SLOT(templateFilterChanged(int)));
+    connect(cbTemplateFilter, SIGNAL(activated(int)), this, SLOT(setTemplateFilter(int)));
 
     maze_size_label = new QLabel(tr("Type"), mapWidget);
     mainLayout.addWidget(maze_size_label, 2, 0);
     maze_size_label->hide();
-    maze_size_selection = new QComboBox(mapWidget);
-    maze_size_selection->addItem(tr("Small tunnels"), 0);
-    maze_size_selection->addItem(tr("Medium tunnels"), 1);
-    maze_size_selection->addItem(tr("Large tunnels"), 2);
-    maze_size_selection->addItem(tr("Small floating islands"), 3);
-    maze_size_selection->addItem(tr("Medium floating islands"), 4);
-    maze_size_selection->addItem(tr("Large floating islands"), 5);
-    maze_size_selection->setCurrentIndex(1);
+    cbMazeSize = new QComboBox(mapWidget);
+    cbMazeSize->addItem(tr("Small tunnels"), 0);
+    cbMazeSize->addItem(tr("Medium tunnels"), 1);
+    cbMazeSize->addItem(tr("Large tunnels"), 2);
+    cbMazeSize->addItem(tr("Small floating islands"), 3);
+    cbMazeSize->addItem(tr("Medium floating islands"), 4);
+    cbMazeSize->addItem(tr("Large floating islands"), 5);
+    cbMazeSize->setCurrentIndex(1);
 
-    mapLayout->addWidget(maze_size_selection, 2, 1);
-    maze_size_selection->hide();
-    connect(maze_size_selection, SIGNAL(currentIndexChanged(int)), this, SLOT(setMaze_size(int)));
+    mapLayout->addWidget(cbMazeSize, 2, 1);
+    cbMazeSize->hide();
+    connect(cbMazeSize, SIGNAL(activated(int)), this, SLOT(setMazeSize(int)));
 
     gbThemes = new IconedGroupBox(mapWidget);
     gbThemes->setTitleTextPadding(80);
@@ -278,9 +278,9 @@ void HWMapContainer::mapChanged(int index)
         updatePreview();
         gbThemes->show();
         lblFilter->show();
-        CB_TemplateFilter->show();
+        cbTemplateFilter->show();
         maze_size_label->hide();
-        maze_size_selection->hide();
+        cbMazeSize->hide();
         emit mapChanged("+rnd+");
         emit mapgenChanged(mapgen);
         emit themeChanged(chooseMap->itemData(index).toList()[1].toString());
@@ -290,9 +290,9 @@ void HWMapContainer::mapChanged(int index)
         updatePreview();
         gbThemes->show();
         lblFilter->hide();
-        CB_TemplateFilter->hide();
+        cbTemplateFilter->hide();
         maze_size_label->show();
-        maze_size_selection->show();
+        cbMazeSize->show();
         emit mapChanged("+maze+");
         emit mapgenChanged(mapgen);
         emit themeChanged(chooseMap->itemData(index).toList()[1].toString());
@@ -302,9 +302,9 @@ void HWMapContainer::mapChanged(int index)
         updatePreview();
         gbThemes->show();
         lblFilter->hide();
-        CB_TemplateFilter->hide();
+        cbTemplateFilter->hide();
         maze_size_label->hide();
-        maze_size_selection->hide();
+        cbMazeSize->hide();
         emit mapChanged("+drawn+");
         emit mapgenChanged(mapgen);
         emit themeChanged(chooseMap->itemData(index).toList()[1].toString());
@@ -313,9 +313,9 @@ void HWMapContainer::mapChanged(int index)
         updatePreview();
         gbThemes->hide();
         lblFilter->hide();
-        CB_TemplateFilter->hide();
+        cbTemplateFilter->hide();
         maze_size_label->hide();
-        maze_size_selection->hide();
+        cbMazeSize->hide();
         emit mapChanged(chooseMap->itemData(index).toList()[0].toString());
     }
 }
@@ -355,7 +355,7 @@ void HWMapContainer::askForGeneratedPreview()
     pMap->getImage(m_seed,
                    getTemplateFilter(),
                    get_mapgen(),
-                   get_maze_size(),
+                   getMazeSize(),
                    getDrawnMapData()
             );
 }
@@ -416,7 +416,7 @@ QString HWMapContainer::getCurrentWeapons() const
 
 quint32 HWMapContainer::getTemplateFilter() const
 {
-    return CB_TemplateFilter->itemData(CB_TemplateFilter->currentIndex()).toInt();
+    return cbTemplateFilter->itemData(cbTemplateFilter->currentIndex()).toInt();
 }
 
 void HWMapContainer::resizeEvent ( QResizeEvent * event )
@@ -425,16 +425,21 @@ void HWMapContainer::resizeEvent ( QResizeEvent * event )
   //imageButt->setIconSize(imageButt->size());
 }
 
-void HWMapContainer::setSeed(const QString & seed)
+void HWMapContainer::intSetSeed(const QString & seed)
 {
     m_seed = seed;
     if (seed != seedEdit->text())
         seedEdit->setText(seed);
+}
+
+void HWMapContainer::setSeed(const QString & seed)
+{
+    intSetSeed(seed);
     if (chooseMap->currentIndex() < MAPGEN_MAP)
         updatePreview();
 }
 
-void HWMapContainer::setMap(const QString & map)
+void HWMapContainer::intSetMap(const QString & map)
 {
     int id = 0;
     for(int i = 0; i < chooseMap->count(); i++)
@@ -452,8 +457,13 @@ void HWMapContainer::setMap(const QString & map)
             pMap = 0;
         }
         chooseMap->setCurrentIndex(id);
-        updatePreview();
     }
+}
+
+void HWMapContainer::setMap(const QString &map)
+{
+    intSetMap(map);
+    updatePreview();
 }
 
 void HWMapContainer::setTheme(const QString & theme)
@@ -515,14 +525,15 @@ void HWMapContainer::setRandomTheme()
     lwThemes->setCurrentRow(themeNum);
 }
 
-void HWMapContainer::setTemplateFilter(int filter)
+void HWMapContainer::intSetTemplateFilter(int filter)
 {
-    CB_TemplateFilter->setCurrentIndex(filter);
+    cbTemplateFilter->setCurrentIndex(filter);
+    emit newTemplateFilter(filter);
 }
 
-void HWMapContainer::templateFilterChanged(int filter)
+void HWMapContainer::setTemplateFilter(int filter)
 {
-    emit newTemplateFilter(filter);
+    intSetTemplateFilter(filter);
     updatePreview();
 }
 
@@ -531,23 +542,33 @@ MapGenerator HWMapContainer::get_mapgen(void) const
     return mapgen;
 }
 
-int HWMapContainer::get_maze_size(void) const
+int HWMapContainer::getMazeSize(void) const
 {
-    return maze_size_selection->currentIndex();
+    return cbMazeSize->currentIndex();
 }
 
-void HWMapContainer::setMaze_size(int size)
+void HWMapContainer::intSetMazeSize(int size)
 {
-    maze_size_selection->setCurrentIndex(size);
-    emit maze_sizeChanged(size);
+    cbMazeSize->setCurrentIndex(size);
+    emit mazeSizeChanged(size);
+}
+
+void HWMapContainer::setMazeSize(int size)
+{
+    intSetMazeSize(size);
     updatePreview();
 }
 
-void HWMapContainer::setMapgen(MapGenerator m)
+void HWMapContainer::intSetMapgen(MapGenerator m)
 {
     mapgen = m;
     chooseMap->setCurrentIndex(m);
     emit mapgenChanged(m);
+}
+
+void HWMapContainer::setMapgen(MapGenerator m)
+{
+    intSetMapgen(m);
     updatePreview();
 }
 
@@ -619,4 +640,15 @@ void HWMapContainer::updatePreview()
         hhLimit = chooseMap->itemData(curIndex).toList()[2].toInt();
         addInfoToPreview(mapImage);
     }
+}
+
+void HWMapContainer::setAllMapParameters(const QString &map, MapGenerator m, int mazesize, const QString &seed, int tmpl)
+{
+    intSetMap(map);
+    intSetMapgen(m);
+    intSetMazeSize(mazesize);
+    intSetSeed(seed);
+    intSetTemplateFilter(tmpl);
+
+    updatePreview();
 }

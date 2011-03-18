@@ -22,7 +22,7 @@ unit PascalExports;
 
 interface
 uses uTypes, uConsts, uVariables, GLunit, uKeys, uChat, uSound, uAmmos, uUtils,
-     uCommands;
+     uCommands, uMobile;
 
 {$INCLUDE "config.inc"}
 
@@ -38,6 +38,7 @@ begin
     versionStr^:= cVersionString;
 end;
 
+// emulate mouse/keyboard input
 procedure HW_click; cdecl; export;
 begin
     leftClick:= true;
@@ -163,6 +164,11 @@ begin
     KeyPressChat(13); // enter - removes chat
 end;
 
+procedure HW_screenshot; cdecl; export;
+begin
+    flagMakeCapture:= true;
+end;
+
 procedure HW_pause; cdecl; export;
 begin
     if isPaused = false then
@@ -190,12 +196,24 @@ begin
     GameState:= previousGameState;
 end;
 
+// equivalent to esc+y; when closeFrontend = true the game exits after memory cleanup
 procedure HW_terminate(closeFrontend: boolean); cdecl; export;
 begin
-    isTerminated:= true;
-    if closeFrontend then alsoShutdownFrontend:= true;
+    {$IFDEF IPHONEOS}setGameRunning(false);{$ENDIF}
+    alsoShutdownFrontend:= closeFrontend;
+    ParseCommand('forcequit', true);
 end;
 
+function HW_getSDLWindow: pointer; cdecl; export;
+begin
+{$IFDEF SDL13}
+    exit( SDLwindow );
+{$ELSE}
+    exit( nil );
+{$ENDIF}
+end;
+
+// cursor handling
 procedure HW_setCursor(x,y: LongInt); cdecl; export;
 begin
     CursorPoint.X:= x;
@@ -208,20 +226,16 @@ begin
     y^:= CursorPoint.Y;
 end;
 
+// ammo menu related functions
 function HW_isAmmoMenuOpen: boolean; cdecl; export;
 begin
-    exit(bShowAmmoMenu);
+    exit( bShowAmmoMenu );
 end;
 
 function HW_isAmmoMenuNotAllowed: boolean; cdecl; export;
 begin;
     exit ( (TurnTimeLeft = 0) or (not CurrentTeam^.ExtDriven and (((CurAmmoGear = nil) or
            ((Ammoz[CurAmmoGear^.AmmoType].Ammo.Propz and ammoprop_AltAttack) = 0)) and hideAmmoMenu)) );
-end;
-
-function HW_isWaiting: boolean; cdecl; export;
-begin
-    exit( ReadyTimeLeft > 0 );
 end;
 
 function HW_isWeaponRequiringClick: boolean; cdecl; export;

@@ -1,6 +1,6 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2006-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2006-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,9 @@
 #include "proto.h"
 
 GameCFGWidget::GameCFGWidget(QWidget* parent) :
-  QGroupBox(parent), mainLayout(this)
+  QGroupBox(parent)
+  , mainLayout(this)
+  , seedRegexp("\\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\}")
 {
     mainLayout.setMargin(0);
 //  mainLayout.setSizeConstraint(QLayout::SetMinimumSize);
@@ -137,7 +139,7 @@ GameCFGWidget::GameCFGWidget(QWidget* parent) :
     connect(pMapContainer, SIGNAL(seedChanged(const QString &)), this, SLOT(seedChanged(const QString &)));
     connect(pMapContainer, SIGNAL(mapChanged(const QString &)), this, SLOT(mapChanged(const QString &)));
     connect(pMapContainer, SIGNAL(mapgenChanged(MapGenerator)), this, SLOT(mapgenChanged(MapGenerator)));
-    connect(pMapContainer, SIGNAL(maze_sizeChanged(int)), this, SLOT(maze_sizeChanged(int)));
+    connect(pMapContainer, SIGNAL(mazeSizeChanged(int)), this, SLOT(maze_sizeChanged(int)));
     connect(pMapContainer, SIGNAL(themeChanged(const QString &)), this, SLOT(themeChanged(const QString &)));
     connect(pMapContainer, SIGNAL(newTemplateFilter(int)), this, SLOT(templateFilterChanged(int)));
     connect(pMapContainer, SIGNAL(drawMapRequested()), this, SIGNAL(goToDrawMap()));
@@ -209,13 +211,15 @@ quint32 GameCFGWidget::getGameFlags() const
         result |= 0x00800000;       // no wind
     if (schemeData(23).toBool())
         result |= 0x01000000;       // more wind
+    if (schemeData(24).toBool())
+        result |= 0x02000000;       // tag team
 
     return result;
 }
 
 quint32 GameCFGWidget::getInitHealth() const
 {
-    return schemeData(26).toInt();
+    return schemeData(27).toInt();
 }
 
 QByteArray GameCFGWidget::getFullConfig() const
@@ -225,26 +229,26 @@ QByteArray GameCFGWidget::getFullConfig() const
 
     bcfg << QString("eseed " + pMapContainer->getCurrentSeed()).toUtf8();
     bcfg << QString("e$gmflags %1").arg(getGameFlags()).toUtf8();
-    bcfg << QString("e$damagepct %1").arg(schemeData(24).toInt()).toUtf8();
-    bcfg << QString("e$turntime %1").arg(schemeData(25).toInt() * 1000).toUtf8();
-    bcfg << QString("e$sd_turns %1").arg(schemeData(27).toInt()).toUtf8();
-    bcfg << QString("e$casefreq %1").arg(schemeData(28).toInt()).toUtf8();
-    bcfg << QString("e$minestime %1").arg(schemeData(29).toInt() * 1000).toUtf8();
-    bcfg << QString("e$minesnum %1").arg(schemeData(30).toInt()).toUtf8();
-    bcfg << QString("e$minedudpct %1").arg(schemeData(31).toInt()).toUtf8();
-    bcfg << QString("e$explosives %1").arg(schemeData(32).toInt()).toUtf8();
-    bcfg << QString("e$healthprob %1").arg(schemeData(33).toInt()).toUtf8();
-    bcfg << QString("e$hcaseamount %1").arg(schemeData(34).toInt()).toUtf8();
-    bcfg << QString("e$waterrise %1").arg(schemeData(35).toInt()).toUtf8();
-    bcfg << QString("e$healthdec %1").arg(schemeData(36).toInt()).toUtf8();
-    bcfg << QString("e$ropepct %1").arg(schemeData(37).toInt()).toUtf8();
+    bcfg << QString("e$damagepct %1").arg(schemeData(25).toInt()).toUtf8();
+    bcfg << QString("e$turntime %1").arg(schemeData(26).toInt() * 1000).toUtf8();
+    bcfg << QString("e$sd_turns %1").arg(schemeData(28).toInt()).toUtf8();
+    bcfg << QString("e$casefreq %1").arg(schemeData(29).toInt()).toUtf8();
+    bcfg << QString("e$minestime %1").arg(schemeData(30).toInt() * 1000).toUtf8();
+    bcfg << QString("e$minesnum %1").arg(schemeData(31).toInt()).toUtf8();
+    bcfg << QString("e$minedudpct %1").arg(schemeData(32).toInt()).toUtf8();
+    bcfg << QString("e$explosives %1").arg(schemeData(33).toInt()).toUtf8();
+    bcfg << QString("e$healthprob %1").arg(schemeData(34).toInt()).toUtf8();
+    bcfg << QString("e$hcaseamount %1").arg(schemeData(35).toInt()).toUtf8();
+    bcfg << QString("e$waterrise %1").arg(schemeData(36).toInt()).toUtf8();
+    bcfg << QString("e$healthdec %1").arg(schemeData(37).toInt()).toUtf8();
+    bcfg << QString("e$ropepct %1").arg(schemeData(38).toInt()).toUtf8();
     bcfg << QString("e$template_filter %1").arg(pMapContainer->getTemplateFilter()).toUtf8();
     bcfg << QString("e$mapgen %1").arg(mapgen).toUtf8();
 
     switch (mapgen)
     {
         case MAPGEN_MAZE:
-            bcfg << QString("e$maze_size %1").arg(pMapContainer->get_maze_size()).toUtf8();
+            bcfg << QString("e$maze_size %1").arg(pMapContainer->getMazeSize()).toUtf8();
             break;
 
         case MAPGEN_DRAWN:
@@ -313,7 +317,7 @@ void GameCFGWidget::fullNetConfig()
     scriptChanged(Scripts->currentIndex());
 
     mapgenChanged(pMapContainer->get_mapgen());
-    maze_sizeChanged(pMapContainer->get_maze_size());
+    maze_sizeChanged(pMapContainer->getMazeSize());
 
     // map must be the last
     QString map = pMapContainer->getCurrentMap();
@@ -332,7 +336,7 @@ void GameCFGWidget::setParam(const QString & param, const QStringList & slValue)
         }
         if (param == "SEED") {
             pMapContainer->setSeed(value);
-            if (!QRegExp("\\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\}").exactMatch(value)) {
+            if (!seedRegexp.exactMatch(value)) {
                 pMapContainer->seedEdit->setVisible(true);
                 }
             return;
@@ -350,7 +354,7 @@ void GameCFGWidget::setParam(const QString & param, const QStringList & slValue)
             return;
         }
         if (param == "MAZE_SIZE") {
-            pMapContainer->setMaze_size(value.toUInt());
+            pMapContainer->setMazeSize(value.toUInt());
             return;
         }
         if (param == "SCRIPT") {
@@ -367,6 +371,25 @@ void GameCFGWidget::setParam(const QString & param, const QStringList & slValue)
     {
         if (param == "AMMO") {
             setNetAmmo(slValue[0], slValue[1]);
+            return;
+        }
+    }
+
+    if (slValue.size() == 5)
+    {
+        if (param == "FULLMAPCONFIG")
+        {
+            QString seed = slValue[3];
+            if (!seedRegexp.exactMatch(seed))
+                pMapContainer->seedEdit->setVisible(true);
+
+            pMapContainer->setAllMapParameters(
+                    slValue[0],
+                    (MapGenerator)slValue[1].toUInt(),
+                    slValue[2].toUInt(),
+                    seed,
+                    slValue[4].toUInt()
+                    );
             return;
         }
     }

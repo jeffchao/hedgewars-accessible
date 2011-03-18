@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2004-2008 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,15 +23,11 @@ interface
 
 uses    SDLh, uFloat, GLunit;
 
-
 {$INCLUDE "config.inc"}
-
-// typed const is a variable despite const qualifier
-// in freepascal you may actually use var for the same purpose
 
 const
     sfMax = 1000;
-    cDefaultParamNum = 16;
+    cDefaultParamNum = 17;
 
     // message constants
     errmsgCreateSurface   = 'Error creating SDL surface';
@@ -69,7 +65,7 @@ const
     rqNoBackground= $00000004;  // don't draw background
     rqSimpleRope  = $00000008;  // draw rope using lines only
     rq2DWater     = $00000010;  // disable 3D water effect
-    rqFancyBoom   = $00000020;  // no fancy explosion effects
+    rqAntiBoom    = $00000020;  // no fancy explosion effects
     rqKillFlakes  = $00000040;  // no flakes
     rqSlowMenu    = $00000080;  // ammomenu appears with no animation
     rqPlainSplash = $00000100;  // no droplets
@@ -116,6 +112,7 @@ const
     cCursorEdgesDist    : LongInt = 100;
     cTeamHealthWidth    : LongInt = 128;
     cWaterOpacity       : byte = $80;
+    cSDWaterOpacity     : byte = $80;
 
     cifRandomize = $00000001;
     cifTheme     = $00000002;
@@ -162,14 +159,6 @@ const
     cSendEmptyPacketTime = 1000;
     trigTurns = $80000001;
 
-    // Training Flags
-    tfNone          = $00000000;
-    tfTimeTrial     = $00000001;
-    tfRCPlane       = $00000002;
-    tfSpawnTargets  = $00000004;
-    tfIgnoreDelays  = $00000008;
-    tfTargetRespawn = $00000010;
-
     gfAny                = $FFFFFFFF;
     gfOneClanMode        = $00000001;           // used in trainings
     gfMultiWeapon        = $00000002;           // used in trainings
@@ -194,8 +183,9 @@ const
     gfInfAttack          = $00100000;
     gfResetWeps          = $00200000;
     gfPerHogAmmo         = $00400000;
-    gfDisableWind        = $00800000;           // only lua for now
+    gfDisableWind        = $00800000;
     gfMoreWind           = $01000000;
+    gfTagTeam            = $02000000;
     // NOTE: When adding new game flags, ask yourself
     // if a "game start notice" would be useful. If so,
     // add one in uWorld.pas - look for "AddGoal".
@@ -252,7 +242,7 @@ const
     ammoprop_NotBorder    = $00000800;
     ammoprop_Utility      = $00001000;
     ammoprop_Effect       = $00002000;
-    ammoprop_NoRoundEnd=$10000000;
+    ammoprop_NoRoundEnd   = $10000000;
 
     AMMO_INFINITE = 100;
 

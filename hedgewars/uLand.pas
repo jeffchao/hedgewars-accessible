@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2005-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1189,7 +1189,7 @@ begin
     LoadThemeConfig;
     isMap:= false;
 
-    // is this not needed any more? let's hope setlength sets also 0s
+    // is this not needed any more? lets hope setlength sets also 0s
     //if ((GameFlags and gfForts) <> 0) or (Pathz[ptMapCurrent] <> '') then
     //    FillChar(Land,SizeOf(TCollisionArray),0);*)
 
@@ -1316,9 +1316,7 @@ end;
 
 procedure chLandCheck(var s: shortstring);
 begin
-{$IFDEF DEBUGFILE}
     AddFileLog('CheckLandDigest: ' + s + ' digest : ' + digest);
-{$ENDIF}
     if digest = '' then
         digest:= s
     else

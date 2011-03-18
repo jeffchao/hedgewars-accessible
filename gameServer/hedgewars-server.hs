@@ -1,65 +1,68 @@
-{-# LANGUAGE CPP, ScopedTypeVariables #-}
+{-# LANGUAGE CPP, ScopedTypeVariables, OverloadedStrings #-}
 
 module Main where
 
 import Network.Socket
-import qualified Network
 import Network.BSD
-import Control.Concurrent.STM
 import Control.Concurrent.Chan
-#if defined(NEW_EXCEPTIONS)
-import qualified Control.OldException as Exception
-#else
-import qualified Control.Exception as Exception
-#endif
+import qualified Control.Exception as E
 import System.Log.Logger
+import System.Process
 -----------------------------------
 import Opts
 import CoreTypes
-import OfficialServer.DBInteraction
 import ServerCore
-import Utils
-
+#if defined(OFFICIAL_SERVER)
+import ConfigFile
+#endif
 
 #if !defined(mingw32_HOST_OS)
 import System.Posix
 #endif
 
 
+setupLoggers :: IO ()
 setupLoggers =
     updateGlobalLogger "Clients"
         (setLevel INFO)
 
-main = withSocketsDo $ do
-#if !defined(mingw32_HOST_OS)
-    installHandler sigPIPE Ignore Nothing;
-    installHandler sigCHLD Ignore Nothing;
-#endif
 
-    setupLoggers
-
-    stats <- atomically $ newTMVar (StatisticsInfo 0 0)
-    dbQueriesChan <- newChan
-    coreChan <- newChan
-    serverInfo' <- getOpts $ newServerInfo stats coreChan dbQueriesChan
-    
-#if defined(OFFICIAL_SERVER)
-    dbHost' <- askFromConsole "DB host: "
-    dbLogin' <- askFromConsole "login: "
-    dbPassword' <- askFromConsole "password: "
-    let serverInfo = serverInfo'{dbHost = dbHost', dbLogin = dbLogin', dbPassword = dbPassword'}
-#else
-    let serverInfo = serverInfo'
-#endif
-
-
+server :: ServerInfo -> IO ()
+server si = do
     proto <- getProtocolNumber "tcp"
-    Exception.bracket
+    E.bracket
         (socket AF_INET Stream proto)
         sClose
         (\sock -> do
             setSocketOption sock ReuseAddr 1
-            bindSocket sock (SockAddrInet (listenPort serverInfo) iNADDR_ANY)
+            bindSocket sock (SockAddrInet (listenPort si) iNADDR_ANY)
             listen sock maxListenQueue
-            startServer serverInfo sock
+            startServer si sock
         )
+
+handleRestart :: ShutdownException -> IO ()
+handleRestart ShutdownException = return ()
+handleRestart RestartException = do
+    _ <- createProcess (proc "./hedgewars-server" [])
+    return ()
+
+main :: IO ()
+main = withSocketsDo $ do
+#if !defined(mingw32_HOST_OS)
+    _ <- installHandler sigPIPE Ignore Nothing
+    _ <- installHandler sigCHLD Ignore Nothing
+#endif
+
+    setupLoggers
+
+    dbQueriesChan <- newChan
+    coreChan' <- newChan
+    serverInfo' <- getOpts $ newServerInfo coreChan' dbQueriesChan Nothing
+
+#if defined(OFFICIAL_SERVER)
+    si <- readServerConfig serverInfo'
+#else
+    let si = serverInfo'
+#endif
+
+    (server si) `E.catch` handleRestart

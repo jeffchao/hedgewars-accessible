@@ -197,7 +197,7 @@
     </message>
     <message>
         <source>Set</source>
-        <translation type="unfinished">Nastaviť</translation>
+        <translation>Nastaviť</translation>
     </message>
 </context>
 <context>
@@ -574,7 +574,7 @@ v nastaveniach hry:</translation>
     <message>
         <source>The Windows version of Hedgewars supports Xfire. Make sure to add Hedgwars to its game list so your friends can see you playing.</source>
         <comment>Tips</comment>
-        <translation>Verzia Hedgewars pre Windows podporuje Xfire. Ubezpečte sa, že ste pridali Hedgewars do zoznamu hier tak, aby vaši priatelia videli, že hráte.</translation>
+        <translation type="obsolete">Verzia Hedgewars pre Windows podporuje Xfire. Ubezpečte sa, že ste pridali Hedgewars do zoznamu hier tak, aby vaši priatelia videli, že hráte.</translation>
     </message>
     <message>
         <source>You should never install Hedgewars on computers you don&apos;t own (school, university, work, etc.). Please ask the responsible person instead!</source>
@@ -644,7 +644,7 @@ v nastaveniach hry:</translation>
     <message>
         <source>The Homing Bee can be tricky to use. It&apos;s turn radius depends on it&apos;s velocity, so try to not use full power.</source>
         <comment>Tips</comment>
-        <translation>Navádzaná včela je trošku zložitejšia na použitie. Jej polomer otočenia závisí na jej rýchlosti, takže ju radšej nepoužívajte pri plnej sile.</translation>
+        <translation type="obsolete">Navádzaná včela je trošku zložitejšia na použitie. Jej polomer otočenia závisí na jej rýchlosti, takže ju radšej nepoužívajte pri plnej sile.</translation>
     </message>
     <message>
         <source>Sticky Mines are a perfect tool to create small chain reactions knocking enemy hedgehogs into dire situations ... or water.</source>
@@ -674,7 +674,7 @@ v nastaveniach hry:</translation>
     <message>
         <source>Use the Incinerating Grenade to temporary keep hedgehogs from passing terrain such as tunnels or platforms.</source>
         <comment>Tips</comment>
-        <translation>Použite spaľujúci granát na dočasné zabránenie ježkom prejsť terénom ako sú tunely alebo plošiny.</translation>
+        <translation type="obsolete">Použite spaľujúci granát na dočasné zabránenie ježkom prejsť terénom ako sú tunely alebo plošiny.</translation>
     </message>
     <message>
         <source>Want to know who&apos;s behind the game? Click on the Hedgewars logo in the main menu to see the credits.</source>
@@ -735,6 +735,21 @@ v nastaveniach hry:</translation>
         <source>You can find your Hedgewars configuration files under &quot;.hedgewars&quot; in your home directory. Create backups or take the files with you, but don&apos;t edit them by hand.</source>
         <comment>Tips</comment>
         <translation>Konfiguračné súbory Hedgewars nájdete v &quot;.hedgewars&quot; vo vašom domovskom adresári. Vytvárajte si zálohy alebo prenášajte si tieto súbory medzi počítačmi, ale needitujte ich ručne.</translation>
+    </message>
+    <message>
+        <source>The Windows version of Hedgewars supports Xfire. Make sure to add Hedgewars to its game list so your friends can see you playing.</source>
+        <comment>Tips</comment>
+        <translation>Hedgewars vo verzii pre Windows podporujú Xfire. Pridajte si Hedgewars do vášho zoznamu hier tak, aby vás vaši priatelia videli hrať.</translation>
+    </message>
+    <message>
+        <source>The Homing Bee can be tricky to use. Its turn radius depends on it&apos;s velocity, so try to not use full power.</source>
+        <comment>Tips</comment>
+        <translation>Navádzaná včela je trošku zložitejšia na použitie. Jej polomer otočenia závisí na jej rýchlosti, takže ju radšej nepoužívajte pri plnej sile.</translation>
+    </message>
+    <message>
+        <source>Use the Molotov or Flame Thrower to temporary keep hedgehogs from passing terrain such as tunnels or platforms.</source>
+        <comment>Tips</comment>
+        <translation>Použite Molotovov koktejl alebo plameňomet na dočasné zabránenie ježkom prejsť terénom ako sú tunely alebo plošiny.</translation>
     </message>
 </context>
 <context>
@@ -1329,6 +1344,46 @@ Aj napriek tomu chcete vojsť do miestnosti?</translation>
         <source>hand drawn map...</source>
         <translation>ručne kreslená mapa...</translation>
     </message>
+    <message>
+        <source>Disabled</source>
+        <translation>Vypnuté</translation>
+    </message>
+    <message>
+        <source>Red/Cyan</source>
+        <translation>Červené/Azúrové</translation>
+    </message>
+    <message>
+        <source>Cyan/Red</source>
+        <translation>Azúrové/Červené</translation>
+    </message>
+    <message>
+        <source>Red/Blue</source>
+        <translation>Červené/Modré</translation>
+    </message>
+    <message>
+        <source>Blue/Red</source>
+        <translation>Modré/Červené</translation>
+    </message>
+    <message>
+        <source>Red/Green</source>
+        <translation>Červené/Zelené</translation>
+    </message>
+    <message>
+        <source>Green/Red</source>
+        <translation>Zelené/Červené</translation>
+    </message>
+    <message>
+        <source>Side-by-side</source>
+        <translation>Vedľa seba</translation>
+    </message>
+    <message>
+        <source>Top-Bottom</source>
+        <translation>Nad sebou</translation>
+    </message>
+    <message>
+        <source>Wiggle</source>
+        <translation>Triasť</translation>
+    </message>
 </context>
 <context>
     <name>QGroupBox</name>
@@ -1570,6 +1625,10 @@ Niektoré vlastnosti nemusia fungovať alebo nemusia byť dokončené. Používa
         <source>Gameplay</source>
         <translation>Hra</translation>
     </message>
+    <message>
+        <source>Stereo rendering</source>
+        <translation>Zobrazenie stereo</translation>
+    </message>
 </context>
 <context>
     <name>QLineEdit</name>
@@ -1759,7 +1818,7 @@ Skontrolujte si vašu inštaláciu</translation>
     </message>
     <message>
         <source>more</source>
-        <translation type="unfinished"></translation>
+        <translation>viac</translation>
     </message>
 </context>
 <context>

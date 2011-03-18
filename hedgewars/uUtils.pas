@@ -1,4 +1,23 @@
+(*
+ * Hedgewars, a free turn based strategy game
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ *)
+
 {$INCLUDE "options.inc"}
+
 unit uUtils;
 
 interface
@@ -35,11 +54,9 @@ function  endian(independent: LongWord): LongWord; inline;
 
 function  CheckCJKFont(s: ansistring; font: THWFont): THWFont;
 
-{$IFDEF DEBUGFILE}
 procedure AddFileLog(s: shortstring);
-{$ENDIF}
 
-function CheckNoTeamOrHH: boolean; inline;
+function  CheckNoTeamOrHH: boolean; inline;
 
 function  GetLaunchX(at: TAmmoType; dir: LongInt; angle: LongInt): LongInt;
 function  GetLaunchY(at: TAmmoType; angle: LongInt): LongInt;
@@ -168,9 +185,7 @@ end;
 
 function isPowerOf2(i: Longword): boolean;
 begin
-if i = 0 then exit(true);
-while not odd(i) do i:= i shr 1;
-isPowerOf2:= (i = 1)
+isPowerOf2:= (i and (i - 1)) = 0
 end;
 
 function toPowerOf2(i: Longword): Longword;
@@ -231,13 +246,14 @@ endian:= (((independent and $FF000000) shr 24) or
 end;
 
 
-{$IFDEF DEBUGFILE}
 procedure AddFileLog(s: shortstring);
 begin
+s:= s;
+{$IFDEF DEBUGFILE}
 writeln(f, GameTicks: 6, ': ', s);
 flush(f)
-end;
 {$ENDIF}
+end;
 
 
 function CheckCJKFont(s: ansistring; font: THWFont): THWFont;
@@ -254,15 +270,19 @@ if (font >= CJKfnt16) or (length(s) = 0) then
 
 l:= Utf8ToUnicode(@tmpstr, Str2PChar(s), length(s))-1;
 i:= 0;
+
 while i < l do
     begin
     u:= tmpstr[i];
-    if (#$2E80  <= u) and  (
-                           (u <= #$2FDF )  or // CJK Radicals Supplement / Kangxi Radicals
+    if (#$1100  <= u) and  (
+                           (u <= #$11FF )  or // Hangul Jamo
+       ((#$2E80  <= u) and (u <= #$2FDF))  or // CJK Radicals Supplement / Kangxi Radicals
        ((#$2FF0  <= u) and (u <= #$303F))  or // Ideographic Description Characters / CJK Radicals Supplement
+       ((#$3130  <= u) and (u <= #$318F))  or // Hangul Compatibility Jamo
        ((#$31C0  <= u) and (u <= #$31EF))  or // CJK Strokes
        ((#$3200  <= u) and (u <= #$4DBF))  or // Enclosed CJK Letters and Months / CJK Compatibility / CJK Unified Ideographs Extension A
        ((#$4E00  <= u) and (u <= #$9FFF))  or // CJK Unified Ideographs
+       ((#$AC00  <= u) and (u <= #$D7AF))  or // Hangul Syllables
        ((#$F900  <= u) and (u <= #$FAFF))  or // CJK Compatibility Ideographs
        ((#$FE30  <= u) and (u <= #$FE4F)))    // CJK Compatibility Forms
        then exit(THWFont( ord(font) + ((ord(High(THWFont))+1) div 2) ));

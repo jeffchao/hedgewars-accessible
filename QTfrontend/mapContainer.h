@@ -1,6 +1,7 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2006, 2007 Igor Ulyanov <iulyanov@gmail.com>
+ * Copyright (c) 2006-2007 Igor Ulyanov <iulyanov@gmail.com>
+ * Copyright (c) 2007-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +52,7 @@ class HWMapContainer : public QWidget
   QString getCurrentWeapons() const;
   quint32 getTemplateFilter() const;
   MapGenerator get_mapgen(void) const;
-  int get_maze_size(void) const;
+  int getMazeSize(void) const;
   bool getCurrentIsMission() const;
   QByteArray getDrawnMapData();
   DrawMapScene * getDrawMapScene();
@@ -65,8 +66,9 @@ class HWMapContainer : public QWidget
   void setTheme(const QString & theme);
   void setTemplateFilter(int);
   void setMapgen(MapGenerator m);
-  void setMaze_size(int size);
+  void setMazeSize(int size);
   void setDrawnMapData(const QByteArray & ar);
+  void setAllMapParameters(const QString & map, MapGenerator m, int mazesize, const QString & seed, int tmpl);
 
  signals:
   void seedChanged(const QString & seed);
@@ -74,7 +76,7 @@ class HWMapContainer : public QWidget
   void themeChanged(const QString & theme);
   void newTemplateFilter(int filter);
   void mapgenChanged(MapGenerator m);
-  void maze_sizeChanged(int s);
+  void mazeSizeChanged(int s);
   void drawMapRequested();
   void drawnMapChanged(const QByteArray & data);
 
@@ -89,7 +91,6 @@ class HWMapContainer : public QWidget
   void setRandomMission();
   void themeSelected(int currentRow);
   void addInfoToPreview(QPixmap image);
-  void templateFilterChanged(int filter);
   void seedEdited();
 
  protected:
@@ -109,13 +110,18 @@ class HWMapContainer : public QWidget
   int templateFilter;
   QPixmap hhSmall;
   QLabel* lblFilter;
-  QComboBox* CB_TemplateFilter;
+  QComboBox* cbTemplateFilter;
   QLabel *maze_size_label;
-  QComboBox *maze_size_selection;
+  QComboBox *cbMazeSize;
   MapGenerator mapgen;
   int numMissions;
   DrawMapScene drawMapScene;
 
+  void intSetSeed(const QString & seed);
+  void intSetMap(const QString & map);
+  void intSetMapgen(MapGenerator m);
+  void intSetTemplateFilter(int);
+  void intSetMazeSize(int size);
   void updatePreview();
 };
 

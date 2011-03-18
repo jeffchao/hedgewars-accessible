@@ -5,35 +5,14 @@ find_package(SDL_ttf)
 find_package(SDL_mixer)
 find_package(Lua)
 
+include(${CMAKE_MODULE_PATH}/FindSDL_Extras.cmake)
+
 configure_file(${hedgewars_SOURCE_DIR}/hedgewars/config.inc.in ${CMAKE_CURRENT_BINARY_DIR}/config.inc)
-
-#find which version of SDL_image and SDL_mixer we have (for IMG_Init and Mix_Init)
-#if the headers are not installed, the newer apis won't be activated
-find_file(sdlmixer_h SDL_mixer.h ${SDLMIXER_INCLUDE_DIR})
-if(sdlmixer_h)
-    file(STRINGS ${sdlmixer_h} sdlmixer_version_tmp REGEX "SDL_MIXER_PATCHLEVEL[\t' ']+[0-9]+")
-    string(REGEX MATCH ".([0-9]+)" sdlmixer_version "${sdlmixer_version_tmp}")
-
-    if(sdlmixer_version GREATER 9)
-        message(STATUS "Enabling enhanced SDL_Mixer calls")
-        set(pascal_compiler_flags_cmn "-dSDL_MIXER_NEWER" ${pascal_compiler_flags_cmn})
-    endif()
-endif()
-
-find_file(sdlimage_h SDL_image.h ${SDLIMAGE_INCLUDE_DIR})
-if(sdlimage_h)
-    file(STRINGS ${sdlimage_h} sdlimage_version_tmp REGEX "SDL_IMAGE_PATCHLEVEL[\t' ']+[0-9]+")
-    string(REGEX MATCH ".([0-9]+)" sdlimage_version "${sdlimage_version_tmp}")
-
-    if(sdlimage_version GREATER 7)
-        message(STATUS "Enabling enhanced SDL_Image calls")
-        set(pascal_compiler_flags_cmn "-dSDL_IMAGE_NEWER" ${pascal_compiler_flags_cmn})
-    endif()
-endif()
 
 #SOURCE AND PROGRAMS SECTION
 set(fpc_tryexe fpc)
 set(hwengine_project ${hedgewars_SOURCE_DIR}/hedgewars/hwengine.pas)
+set(engine_output_name "hwengine")
 
 set(engine_sources
     ${hwengine_project}
@@ -93,9 +72,22 @@ if(BUILD_ENGINE_LIBRARY)
     message(STATUS "Engine will be built as library (experimental)")
     set(hwengine_project ${hedgewars_SOURCE_DIR}/hedgewars/hwLibrary.pas)
     set(engine_sources ${hwengine_project} PascalExports.pas ${engine_sources})
-    set(pascal_compiler_flags_cmn "-dHWLIBRARY" "-k-no_order_inits" "-fPIC" ${pascal_compiler_flags_cmn})
-endif(BUILD_ENGINE_LIBRARY)
+    set(pascal_compiler_flags_cmn "-dHWLIBRARY" ${pascal_compiler_flags_cmn})
 
+    # create position independent code, only required for x68_64 builds, similar to -fPIC
+    if(CMAKE_SIZEOF_VOID_P MATCHES "8")
+        set(pascal_compiler_flags_cmn "-Cg" ${pascal_compiler_flags_cmn})
+    endif(CMAKE_SIZEOF_VOID_P MATCHES "8")
+
+    # due to compiling/linker issues on Max OS X 10.6 -k-no_order_inits is needed to avoid linking fail
+    if(APPLE AND current_macosx_version MATCHES "10.6")
+        set(pascal_compiler_flags_cmn "-k-no_order_inits" ${pascal_compiler_flags_cmn})
+    endif(APPLE AND current_macosx_version MATCHES "10.6")
+
+    if (APPLE)
+        set(engine_output_name "hwengine.dylib")
+    endif (APPLE)
+endif(BUILD_ENGINE_LIBRARY)
 
 find_program(fpc_executable ${fpc_tryexe})
 
@@ -140,8 +132,8 @@ if(fpc_version)
 
     if(fpc_ver LESS "020200")
         message(FATAL_ERROR "Minimum required version of FreePascal is 2.2.0")
-    elseif(APPLE AND x86_64_build AND fpc_ver LESS "020400")
-        message(FATAL_ERROR "Minimum required version of FreePascal is 2.4.0 for building 64 bit applications!")
+    elseif(APPLE AND x86_64_build AND (fpc_ver LESS "020400"))
+        message(FATAL_ERROR "Minimum required version of FreePascal is 2.4.0 for building 64 bit applications on Mac OS X!")
     endif()
 else()
     message(FATAL_ERROR "No Pascal compiler found!")
@@ -152,9 +144,9 @@ set(pascal_compiler_flags ${noexecstack_flags} ${pascal_compiler_flags_cmn} ${hw
 
 
 #DEPENDECIES AND EXECUTABLES SECTION
-IF(NOT APPLE OR BUILD_ENGINE_LIBRARY)
+IF(NOT APPLE)
     #here is the command for standard executables or for shared library
-    add_custom_command(OUTPUT "${EXECUTABLE_OUTPUT_PATH}/hwengine${CMAKE_EXECUTABLE_SUFFIX}"
+    add_custom_command(OUTPUT "${EXECUTABLE_OUTPUT_PATH}/${engine_output_name}${CMAKE_EXECUTABLE_SUFFIX}"
         COMMAND "${pascal_compiler}"
         ARGS ${pascal_compiler_flags}
         MAIN_DEPENDENCY ${hwengine_project}
@@ -182,15 +174,15 @@ ELSE()
         add_custom_target(hwengine.${build_arch} ALL DEPENDS "${EXECUTABLE_OUTPUT_PATH}/hwengine.${build_arch}")
     endforeach()
 
-    add_custom_command(OUTPUT "${EXECUTABLE_OUTPUT_PATH}/hwengine"
+    add_custom_command(OUTPUT "${EXECUTABLE_OUTPUT_PATH}/${engine_output_name}"
         COMMAND "lipo"
-        ARGS ${lipo_args_list} -create -output ${EXECUTABLE_OUTPUT_PATH}/hwengine
+        ARGS ${lipo_args_list} -create -output ${EXECUTABLE_OUTPUT_PATH}/${engine_output_name}
         DEPENDS ${lipo_args_list}
         )
 ENDIF()
 
 
-add_custom_target(hwengine ALL DEPENDS "${EXECUTABLE_OUTPUT_PATH}/hwengine${CMAKE_EXECUTABLE_SUFFIX}")
+add_custom_target(${engine_output_name} ALL DEPENDS "${EXECUTABLE_OUTPUT_PATH}/${engine_output_name}${CMAKE_EXECUTABLE_SUFFIX}")
 
-install(PROGRAMS "${EXECUTABLE_OUTPUT_PATH}/hwengine${CMAKE_EXECUTABLE_SUFFIX}" DESTINATION ${target_dir})
+install(PROGRAMS "${EXECUTABLE_OUTPUT_PATH}/${engine_output_name}${CMAKE_EXECUTABLE_SUFFIX}" DESTINATION ${target_dir})
 

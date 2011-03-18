@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2008 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ procedure initModule;
 procedure freeModule;
 
 procedure AmmoUsed(am: TAmmoType);
-procedure HedgehogDamaged(Gear: PGear);
+procedure HedgehogDamaged(Gear: PGear; Attacker: PHedgehog);
 procedure Skipped;
 procedure TurnReaction;
 procedure SendStats;
@@ -50,19 +50,17 @@ var DamageGiven : Longword = 0;
     vpHurtSameClan: PVoicepack = nil;
     vpHurtEnemy: PVoicepack = nil;
 
-procedure HedgehogDamaged(Gear: PGear);
+procedure HedgehogDamaged(Gear: PGear; Attacker: PHedgehog);
 begin
-if CurrentHedgehog^.Team^.Clan = Gear^.Hedgehog^.Team^.Clan then
+if Attacker^.Team^.Clan = Gear^.Hedgehog^.Team^.Clan then
     vpHurtSameClan:= CurrentHedgehog^.Team^.voicepack
 else
     vpHurtEnemy:= Gear^.Hedgehog^.Team^.voicepack;
 
-if bBetweenTurns then exit;
-
 //////////////////////////
 
-if Gear <> CurrentHedgehog^.Gear then
-    inc(CurrentHedgehog^.stats.StepDamageGiven, Gear^.Damage);
+if Gear <> Attacker^.Gear then
+    inc(Attacker^.stats.StepDamageGiven, Gear^.Damage);
 
 if CurrentHedgehog^.Team^.Clan = Gear^.Hedgehog^.Team^.Clan then inc(DamageClan, Gear^.Damage);
 

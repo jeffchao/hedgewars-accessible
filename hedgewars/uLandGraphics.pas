@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2005-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ type PRangeArray = ^TRangeArray;
                                    Left, Right: LongInt;
                                    end;
 
+function  addBgColor(OldColor, NewColor: LongWord): LongWord;
 function  SweepDirty: boolean;
 function  Despeckle(X, Y: LongInt): boolean;
 function  CheckLandValue(X, Y: LongInt; LandFlag: Word): boolean;
@@ -37,10 +38,35 @@ procedure FillRoundInLand(X, Y, Radius: LongInt; Value: Longword);
 procedure ChangeRoundInLand(X, Y, Radius: LongInt; doSet: boolean);
 function  LandBackPixel(x, y: LongInt): LongWord;
 
-function TryPlaceOnLand(cpX, cpY: LongInt; Obj: TSprite; Frame: LongInt; doPlace: boolean): boolean;
+function TryPlaceOnLand(cpX, cpY: LongInt; Obj: TSprite; Frame: LongInt; doPlace: boolean; indestructible: boolean): boolean;
 
 implementation
 uses SDLh, uLandTexture, uVariables, uUtils, uDebug;
+
+function addBgColor(OldColor, NewColor: LongWord): LongWord;
+// Factor ranges from 0 to 100% NewColor
+var
+    oRed, oBlue, oGreen, oAlpha, nRed, nBlue, nGreen, nAlpha: Byte;
+begin
+    // Get colors
+    oAlpha := (OldColor shr 24) and $FF;
+    oRed   := (OldColor shr 16) and $FF;
+    oGreen := (OldColor shr 8) and $FF;
+    oBlue  := (OldColor) and $FF;
+
+    nAlpha := (NewColor shr 24) and $FF;
+    nRed   := (NewColor shr 16) and $FF;
+    nGreen := (NewColor shr 8) and $FF;
+    nBlue  := (NewColor) and $FF;
+
+    // Mix colors
+    nAlpha := min(255, oAlpha + nAlpha);
+    nRed   := ((oRed * oAlpha) + (nRed * (255-oAlpha))) div 255;
+    nGreen := ((oGreen * oAlpha) + (nGreen * (255-oAlpha))) div 255;
+    nBlue  := ((oBlue * oAlpha) + (nBlue * (255-oAlpha))) div 255;
+
+    addBgColor := (nAlpha shl 24) or (nRed shl 16) or (nGreen shl 8) or (nBlue);
+end;
 
 procedure FillCircleLines(x, y, dx, dy: LongInt; Value: Longword);
 var i: LongInt;
@@ -593,7 +619,7 @@ ddy:= Min(stY + HalfWidth * 2 + 4 + abs(hwRound(dY * ticks)), LAND_HEIGHT) - ty;
 UpdateLandTexture(tx, ddx, ty, ddy)
 end;
 
-function TryPlaceOnLand(cpX, cpY: LongInt; Obj: TSprite; Frame: LongInt; doPlace: boolean): boolean;
+function TryPlaceOnLand(cpX, cpY: LongInt; Obj: TSprite; Frame: LongInt; doPlace: boolean; indestructible: boolean): boolean;
 var X, Y, bpp, h, w, row, col, numFramesFirstCol: LongInt;
     p: PByteArray;
     Image: PSDL_Surface;
@@ -649,7 +675,10 @@ case bpp of
             for x:= 0 to Pred(w) do
                 if PLongword(@(p^[x * 4]))^ <> 0 then
                    begin
-                   Land[cpY + y, cpX + x]:= lfObject;
+                   if indestructible then
+                       Land[cpY + y, cpX + x]:= lfIndestructible
+                   else
+                       Land[cpY + y, cpX + x]:= lfObject;
                    if (cReducedQuality and rqBlurryLand) = 0 then
                        LandPixels[cpY + y, cpX + x]:= PLongword(@(p^[x * 4]))^
                    else

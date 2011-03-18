@@ -1,0 +1,12 @@
+1. Fix broken trainings/missions
+2. Update translations (check fireforge for patches)
+3. Check copyright headers
+4. Changelog
+5. Turn debug stuff off (frontend console output)
+6. Update message in game server, update check for client version
+7. Make a branch
+8. Make packages
+9. Test packages
+10. Upload (hedgewars.org, fireforge.net, gna.org (rsync --delete  -avr --rsh="ssh" . unc0rr@download.gna.org:/upload/hedgewars))
+11. Post news (hedgewars.org, hedgewars forum, fireforge.net, gna.org, happypenguin, etc.)
+12. Make tag (svn copy svn+ssh://unc0rr@svn.fireforge.net/svnroot/hedgewars/branches/0.9.7 svn+ssh://unc0rr@svn.fireforge.net/svnroot/hedgewars/tags/0.9.7 -m "Tag for 0.9.7 release")

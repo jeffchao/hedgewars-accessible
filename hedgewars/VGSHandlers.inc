@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2004-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,14 +24,23 @@ sign:= 1;
 with Gear^ do
     begin
     inc(FrameTicks, Steps);
-    if FrameTicks > vobFrameTicks then
+    if not SuddenDeathDmg and (FrameTicks > vobFrameTicks) then
         begin
         dec(FrameTicks, vobFrameTicks);
         inc(Frame);
         if Frame = vobFramesCount then Frame:= 0
+        end
+    else if SuddenDeathDmg and (FrameTicks > vobSDFrameTicks) then
+        begin
+        dec(FrameTicks, vobSDFrameTicks);
+        inc(Frame);
+        if Frame = vobSDFramesCount then Frame:= 0
         end;
     X:= X + (cWindSpeedf * 200 + dX + tdX) * Steps;
-    Y:= Y + (dY + tdY + cGravityf * vobFallSpeed) * Steps;
+    if SuddenDeathDmg then
+        Y:= Y + (dY + tdY + cGravityf * vobSDFallSpeed) * Steps
+    else
+        Y:= Y + (dY + tdY + cGravityf * vobFallSpeed) * Steps;
     Angle:= Angle + dAngle * Steps;
     if Angle > 360 then
         Angle:= Angle - 360
@@ -663,8 +672,8 @@ with Gear^ do
                 else dec(tmp);
                 if tmp < round(dX) then tdY:= 1;
                 if tmp > round(dY) then tdY:= -1;
-		if tmp > 255 then tmp := 255;
-		if tmp < 0 then tmp := 0;
+                if tmp > 255 then tmp := 255;
+                if tmp < 0 then tmp := 0;
                 Gear^.Tint:= (Gear^.Tint and $FFFFFF00) or tmp
                 end
             end

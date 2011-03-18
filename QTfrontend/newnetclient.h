@@ -1,6 +1,7 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2006-2008 Ulyanov Igor <iulyanov@gmail.com>
+ * Copyright (c) 2006-2008 Igor Ulyanov <iulyanov@gmail.com>
+ * Copyright (c) 2008-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,6 +87,7 @@ class HWNewNet : public QObject
   void RawSendNet(const QString & buf);
   void RawSendNet(const QByteArray & buf);
   void ParseCmd(const QStringList & lst);
+  void handleNotice(int n);
 
   int loginStep;
   int netClientState;
@@ -112,6 +114,7 @@ class HWNewNet : public QObject
   void hhnumChanged(const HWTeam&);
   void teamColorChanged(const HWTeam&);
   void chatStringLobby(const QString&);
+  void chatStringLobby(const QString&, const QString&);
   void chatStringFromNet(const QString&);
   void chatStringFromMe(const QString&);
   void chatStringFromMeLobby(const QString&);
@@ -146,7 +149,7 @@ class HWNewNet : public QObject
   void JoinRoom(const QString & room);
   void CreateRoom(const QString & room);
   void askRoomsList();
-  void gameFinished();
+  void gameFinished(bool correcly);
   void banPlayer(const QString &);
   void kickPlayer(const QString &);
   void infoPlayer(const QString &);
@@ -161,7 +164,7 @@ class HWNewNet : public QObject
   void ClientRead();
   void OnConnect();
   void OnDisconnect();
-  void displayError(QAbstractSocket::SocketError socketError);
+  void displayError(QAbstractSocket::SocketError socketError); 
 };
 
 #endif // _NEW_NETCLIENT_INCLUDED

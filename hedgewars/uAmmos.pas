@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2006-2008 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,7 +94,6 @@ for a:= Low(TAmmoType) to High(TAmmoType) do
         Ammoz[a].Probability:= probability[byte(ammoProbability[ord(a)]) - byte('0')];
         Ammoz[a].SkipTurns:= (byte(ammoDelay[ord(a)]) - byte('0'));
         Ammoz[a].NumberInCase:= (byte(ammoReinforcement[ord(a)]) - byte('0'));
-        if (TrainingFlags and tfIgnoreDelays) <> 0 then Ammoz[a].SkipTurns:= 0;
         cnt:= byte(ammoLoadout[ord(a)]) - byte('0');
         // avoid things we already have infinite number
         if cnt = 9 then
@@ -320,15 +319,12 @@ with Hedgehog do
 
     with CurWeapon^ do
         begin
-        if AmmoType <> amNothing then
-            begin
-            s:= trammo[Ammoz[AmmoType].NameId];
-            if (Count <> AMMO_INFINITE) and not (Hedgehog.Team^.ExtDriven or (Hedgehog.BotLevel > 0)) then
-                s:= s + ' (' + IntToStr(Count) + ')';
-            if (Propz and ammoprop_Timerable) <> 0 then
-                s:= s + ', ' + IntToStr(Timer div 1000) + ' ' + trammo[sidSeconds];
-            AddCaption(s, Team^.Clan^.Color, capgrpAmmoinfo);
-            end;
+        s:= trammo[Ammoz[AmmoType].NameId];
+        if (Count <> AMMO_INFINITE) and not (Hedgehog.Team^.ExtDriven or (Hedgehog.BotLevel > 0)) then
+            s:= s + ' (' + IntToStr(Count) + ')';
+        if (Propz and ammoprop_Timerable) <> 0 then
+            s:= s + ', ' + IntToStr(Timer div 1000) + ' ' + trammo[sidSeconds];
+        AddCaption(s, Team^.Clan^.Color, capgrpAmmoinfo);
         if (Propz and ammoprop_NeedTarget) <> 0
             then begin
             Gear^.State:= Gear^.State or      gstHHChooseTarget;

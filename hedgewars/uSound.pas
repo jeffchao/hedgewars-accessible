@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2005, 2007, 2009 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,18 +35,22 @@ procedure PlaySound(snd: TSound; keepPlaying: boolean);
 procedure PlaySound(snd: TSound; voicepack: PVoicepack);
 procedure PlaySound(snd: TSound; voicepack: PVoicepack; keepPlaying: boolean);
 function  LoopSound(snd: TSound): LongInt;
+function  LoopSound(snd: TSound; fadems: LongInt): LongInt;
 function  LoopSound(snd: TSound; voicepack: PVoicepack): LongInt;
+function  LoopSound(snd: TSound; voicepack: PVoicepack; fadems: LongInt): LongInt;
 procedure PlayMusic;
 procedure PauseMusic;
 procedure ResumeMusic;
+procedure ChangeMusic;
 procedure StopSound(snd: TSound);
 procedure StopSound(chn: LongInt);
+procedure StopSound(chn, fadems: LongInt);
 function  ChangeVolume(voldelta: LongInt): LongInt;
 function  AskForVoicepack(name: shortstring): Pointer;
 
 
 implementation
-uses uVariables, uConsole, uUtils, uCommands, uDebug, uMobile;
+uses uVariables, uConsole, uUtils, uCommands, uDebug;
 
 const chanTPU = 32;
 var Volume: LongInt;
@@ -179,7 +183,7 @@ end;
 procedure PlaySound(snd: TSound; voicepack: PVoicepack; keepPlaying: boolean);
 var s:shortstring;
 begin
-    if (not isSoundEnabled) or fastUntilLag or isDeviceMute() then
+    if (not isSoundEnabled) or fastUntilLag then
         exit;
 
     if keepPlaying and (lastChan[snd] <> -1) and (Mix_Playing(lastChan[snd]) <> 0) then
@@ -218,10 +222,20 @@ begin
     LoopSound:= LoopSound(snd, nil)
 end;
 
+function LoopSound(snd: TSound; fadems: LongInt): LongInt;
+begin
+    LoopSound:= LoopSound(snd, nil, fadems)
+end;
+
 function LoopSound(snd: TSound; voicepack: PVoicepack): LongInt;
+begin
+    LoopSound:= LoopSound(snd, nil, 0)
+end;
+
+function LoopSound(snd: TSound; voicepack: PVoicepack; fadems: LongInt): LongInt;
 var s: shortstring;
 begin
-    if (not isSoundEnabled) or fastUntilLag or isDeviceMute() then
+    if (not isSoundEnabled) or fastUntilLag then
     begin
         LoopSound:= -1;
         exit
@@ -251,13 +265,17 @@ begin
             TryDo(defVoicepack^.chunks[snd] <> nil, msgFailed, true);
             WriteLnToConsole(msgOK);
         end;
-        LoopSound:= Mix_PlayChannelTimed(-1, defVoicepack^.chunks[snd], -1, -1);
+        if fadems > 0 then
+            LoopSound:= Mix_FadeInChannelTimed(-1, defVoicepack^.chunks[snd], -1, fadems, -1)
+        else
+            LoopSound:= Mix_PlayChannelTimed(-1, defVoicepack^.chunks[snd], -1, -1);
     end;
 end;
 
 procedure StopSound(snd: TSound);
 begin
     if not isSoundEnabled then exit;
+
     if (lastChan[snd] <> -1) and (Mix_Playing(lastChan[snd]) <> 0) then
     begin
         Mix_HaltChannel(lastChan[snd]);
@@ -271,6 +289,14 @@ begin
 
     if (chn <> -1) and (Mix_Playing(chn) <> 0) then
         Mix_HaltChannel(chn);
+end;
+
+procedure StopSound(chn, fadems: LongInt);
+begin
+    if not isSoundEnabled then exit;
+
+    if (chn <> -1) and (Mix_Playing(chn) <> 0) then
+        Mix_FadeOutChannel(chn, fadems);
 end;
 
 procedure PlayMusic;
@@ -316,6 +342,17 @@ begin
         exit;
 
     Mix_ResumeMusic(Mus);
+end;
+
+procedure ChangeMusic;
+begin
+    if (MusicFN = '') or (not isMusicEnabled) then
+        exit;
+
+    if Mus <> nil then
+        Mix_FreeMusic(Mus);
+
+    PlayMusic;
 end;
 
 procedure chVoicepack(var s: shortstring);

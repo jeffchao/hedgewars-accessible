@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2008 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,10 +29,6 @@ procedure AddChatString(s: shortstring);
 procedure DrawChat;
 procedure KeyPressChat(Key: Longword);
 
-var UserNick: shortstring = '';
-    ChatReady: boolean;
-    showAll: boolean;
-
 implementation
 uses SDLh, uKeys, uTypes, uVariables, uCommands, uUtils, uTextures, uRender, uIO;
 
@@ -52,6 +48,8 @@ var Strs: array[0 .. MaxStrIndex] of TChatLine;
     visibleCount: LongWord;
     InputStr: TChatLine;
     InputStrL: array[0..260] of char; // for full str + 4-byte utf-8 char
+    ChatReady: boolean;
+    showAll: boolean;
 
 const colors: array[#1..#5] of TSDL_Color = (
     (r:$FF; g:$FF; b:$FF; unused:$FF), // chat message [White]
@@ -69,7 +67,6 @@ var strSurface, resSurface: PSDL_Surface;
 begin
 if cl.Tex <> nil then
     FreeTexture(cl.Tex);
-
 
 cl.s:= str;
 
@@ -357,6 +354,7 @@ begin
 end;
 
 procedure initModule;
+var i: ShortInt;
 begin
     RegisterVariable('chatmsg', vtCommand, @chChatMessage, true);
     RegisterVariable('say', vtCommand, @chSay, true);
@@ -369,11 +367,22 @@ begin
     showAll:= false;
     ChatReady:= false;
     missedCount:= 0;
+
+    inputStr.Tex := nil;
+    for i:= 0 to MaxStrIndex do
+    begin
+        Strs[i].Tex := nil;
+    end;
 end;
 
 procedure freeModule;
+var i: ShortInt;
 begin
-    UserNick:= '';
+    FreeTexture(InputStr.Tex);
+    for i:= 0 to MaxStrIndex do
+    begin
+        FreeTexture(Strs[i].Tex);
+    end;
 end;
 
 end.

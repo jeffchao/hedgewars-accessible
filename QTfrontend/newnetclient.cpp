@@ -1,7 +1,7 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2006-2008 Ulyanov Igor <iulyanov@gmail.com>
- * Copyright (c) 2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2006-2008 Igor Ulyanov <iulyanov@gmail.com>
+ * Copyright (c) 2008-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,10 @@
 #include "gamecfgwidget.h"
 #include "teamselect.h"
 #include "misc.h"
+/* only to get the ignoreList from the chat widget */
+#include "hwform.h"
+#include "pages.h"
+#include "chatwidget.h"
 
 char delimeter='\n';
 
@@ -236,6 +240,12 @@ void HWNewNet::ParseCmd(const QStringList & lst)
     }
 
     if (lst[0] == "CONNECTED") {
+        if(lst.size() < 3 || lst[2].toInt() < cMinServerVersion)
+        {
+            // TODO: Warn user, disconnect
+            qWarning() << "Server too old";
+        }
+
         RawSendNet(QString("NICK%1%2").arg(delimeter).arg(mynick));
         RawSendNet(QString("PROTO%1%2").arg(delimeter).arg(*cProtoVer));
         netClientState = 1;
@@ -276,7 +286,7 @@ void HWNewNet::ParseCmd(const QStringList & lst)
             return;
         }
         if (netClientState == 2)
-            emit chatStringLobby(HWProto::formatChatMsg(lst[1], lst[2]));
+            emit chatStringLobby(lst[1], HWProto::formatChatMsgForFrontend(lst[2]));
         else
             emit chatStringFromNet(HWProto::formatChatMsg(lst[1], lst[2]));
         return;
@@ -312,33 +322,36 @@ void HWNewNet::ParseCmd(const QStringList & lst)
         return;
     }
 
-    if (lst[0] == "READY") {
-        if(lst.size() < 2)
+    if (lst[0] == "CLIENT_FLAGS")
+    {
+        if(lst.size() < 3 || lst[1].size() < 2)
         {
-            qWarning("Net: Malformed READY message");
+            qWarning("Net: Malformed CLIENT_FLAGS message");
             return;
         }
-        for(int i = 1; i < lst.size(); ++i)
-        {
-            if (lst[i] == mynick)
-                emit setMyReadyStatus(true);
-            emit setReadyStatus(lst[i], true);
-        }
-        return;
-    }
 
-    if (lst[0] == "NOT_READY") {
-        if(lst.size() < 2)
+        QString flags = lst[1];
+        bool setFlag = flags[0] == '+';
+
+        while(flags.size() > 1)
         {
-            qWarning("Net: Malformed NOT_READY message");
-            return;
+            flags.remove(0, 1);
+            char c = flags[0].toAscii();
+
+            switch(c)
+            {
+            case 'r':
+                {
+                    for(int i = 2; i < lst.size(); ++i)
+                    {
+                        if (lst[i] == mynick)
+                            emit setMyReadyStatus(setFlag);
+                        emit setReadyStatus(lst[i], setFlag);
+                    }
+                }
+            }
         }
-        for(int i = 1; i < lst.size(); ++i)
-        {
-            if (lst[i] == mynick)
-                emit setMyReadyStatus(false);
-            emit setReadyStatus(lst[i], false);
-        }
+
         return;
     }
 
@@ -395,8 +408,15 @@ void HWNewNet::ParseCmd(const QStringList & lst)
                 if (isChief)
                     emit configAsked();
             }
-            emit nickAdded(lst[i], isChief && (lst[i] != mynick));
-            emit chatStringFromNet(tr("%1 *** %2 has joined the room").arg('\x03').arg(lst[i]));
+            if (lst[i] != mynick && isChief && config->Form->ui.pageRoomsList->chatWidget->ignoreList.contains(lst[i], Qt::CaseInsensitive) && !config->Form->ui.pageRoomsList->chatWidget->friendsList.contains(lst[i], Qt::CaseInsensitive))
+            {
+                kickPlayer(lst[i]);
+            }
+            else
+            {
+                emit nickAdded(lst[i], isChief && (lst[i] != mynick));
+                emit chatStringFromNet(tr("%1 *** %2 has joined the room").arg('\x03').arg(lst[i]));
+            }
         }
         return;
     }
@@ -418,7 +438,7 @@ void HWNewNet::ParseCmd(const QStringList & lst)
             }
 
             emit nickAddedLobby(lst[i], false);
-            emit chatStringLobby(tr("%1 *** %2 has joined").arg('\x03').arg(lst[i]));
+            emit chatStringLobby(lst[i], tr("%1 *** %2 has joined").arg('\x03').arg("|nick|"));
         }
         return;
     }
@@ -486,6 +506,26 @@ void HWNewNet::ParseCmd(const QStringList & lst)
         }
 
         RawSendNet(QString("PASSWORD%1%2").arg(delimeter).arg(hash));
+        return;
+    }
+
+    if (lst[0] == "NOTICE") {
+        if(lst.size() < 2)
+        {
+            qWarning("Net: Bad NOTICE message");
+            return;
+        }
+
+        bool ok;
+        int n = lst[1].toInt(&ok);
+        if(!ok)
+        {
+            qWarning("Net: Bad NOTICE message");
+            return;
+        }
+
+        handleNotice(n);
+
         return;
     }
 
@@ -673,10 +713,10 @@ bool HWNewNet::isRoomChief()
     return isChief;
 }
 
-void HWNewNet::gameFinished()
+void HWNewNet::gameFinished(bool correctly)
 {
     if (netClientState == 5) netClientState = 3;
-    RawSendNet(QString("ROUNDFINISHED"));
+    RawSendNet(QString("ROUNDFINISHED%1%2").arg(delimeter).arg(correctly ? "1" : "0"));
 }
 
 void HWNewNet::banPlayer(const QString & nick)
@@ -751,4 +791,29 @@ void HWNewNet::setLatestProtocolVar(int proto)
 void HWNewNet::askServerVars()
 {
     RawSendNet(QString("GET_SERVER_VAR"));
+}
+
+void HWNewNet::handleNotice(int n)
+{
+    switch(n)
+    {
+        case 0:
+        {
+            bool ok = false;
+            QString newNick = QInputDialog::getText(0, tr("Nickname"), tr("Some one already uses\n your nickname %1\non the server.\nPlease pick another nickname:").arg(mynick), QLineEdit::Normal, mynick, &ok);
+
+            if (!ok || newNick.isEmpty()) {
+                Disconnect();
+                emit Disconnected();
+                return;
+            }
+
+            config->setValue("net/nick", newNick);
+            mynick = newNick;
+
+            RawSendNet(QString("NICK%1%2").arg(delimeter).arg(newNick));
+
+            break;
+        }
+    }
 }

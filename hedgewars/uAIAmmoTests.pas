@@ -1,6 +1,6 @@
 (*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2005-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,8 +103,10 @@ const AmmoTests: array[TAmmoType] of TAmmoTest =
             (proc: @TestGrenade;     flags: 0), // amSMine
             (proc: @TestFirePunch;   flags: 0), // amHammer
             (proc: nil;              flags: 0), // amResurrector
-            (proc: nil;              flags: 0),// amDrillStrike
-            (proc: @TestSnowball;    flags: 0) // amSnowball
+            (proc: nil;              flags: 0), // amDrillStrike
+            (proc: @TestSnowball;    flags: 0), // amSnowball
+            (proc: nil;              flags: 0), // amTardis
+            (proc: nil;              flags: 0) // amStructure
             );
 
 const BadTurn = Low(LongInt) div 4;

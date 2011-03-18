@@ -1,6 +1,6 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2006-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2006-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,7 +122,7 @@ PageMain::PageMain(QWidget* parent) :
         Tips << tr("We're open to suggestions and constructive feedback. If you don't like something or got a great idea, let us know!", "Tips");
         Tips << tr("Especially while playing online be polite and always remember there might be some minors playing with or against you as well!", "Tips");
         Tips << tr("Special game modes such as 'Vampirism' or 'Karma' allow you to develop completely new tactics. Try them in a custom game!", "Tips");
-        Tips << tr("The Windows version of Hedgewars supports Xfire. Make sure to add Hedgwars to its game list so your friends can see you playing.", "Tips");
+        Tips << tr("The Windows version of Hedgewars supports Xfire. Make sure to add Hedgewars to its game list so your friends can see you playing.", "Tips");
         Tips << tr("You should never install Hedgewars on computers you don't own (school, university, work, etc.). Please ask the responsible person instead!", "Tips");
         Tips << tr("Hedgewars can be perfect for short games during breaks. Just ensure you don't add too many hedgehogs or use an huge map. Reducing time and health might help as well.", "Tips");
         Tips << tr("No hedgehogs were harmed in making this game.", "Tips");
@@ -132,13 +132,13 @@ PageMain::PageMain(QWidget* parent) :
         Tips << tr("Most weapons won't work once they touch the water. The Homing Bee as well as the Cake are exceptions to this.", "Tips");
         Tips << tr("The Old Limbuger only causes a small explosion. However the wind affected smelly cloud can poison lots of hogs at once.", "Tips");
         Tips << tr("The Piano Strike is the most damaging air strike. You'll lose the hedgehog performing it, so there's a huge downside as well.", "Tips");
-        Tips << tr("The Homing Bee can be tricky to use. It's turn radius depends on it's velocity, so try to not use full power.", "Tips");
+        Tips << tr("The Homing Bee can be tricky to use. Its turn radius depends on it's velocity, so try to not use full power.", "Tips");
         Tips << tr("Sticky Mines are a perfect tool to create small chain reactions knocking enemy hedgehogs into dire situations ... or water.", "Tips");
         Tips << tr("The Hammer is most effective when used on bridges or girders. Hit hogs will just break through the ground.", "Tips");
         Tips << tr("If you're stuck behind an enemy hedgehog, use the Hammer to free yourself without getting damaged by an explosion.", "Tips");
         Tips << tr("The Cake's maximum walking distance depends on the ground it has to pass. Use [attack] to detonate it early.", "Tips");
         Tips << tr("The Flame Thrower is a weapon but it can be used for tunnel digging as well.", "Tips");
-        Tips << tr("Use the Incinerating Grenade to temporary keep hedgehogs from passing terrain such as tunnels or platforms.", "Tips");
+        Tips << tr("Use the Molotov or Flame Thrower to temporary keep hedgehogs from passing terrain such as tunnels or platforms.", "Tips");
         Tips << tr("Want to know who's behind the game? Click on the Hedgewars logo in the main menu to see the credits.", "Tips");
         Tips << tr("Like Hedgewars? Become a fan on %1 or follow us on %2!", "Tips").arg("<a href=\"http://www.facebook.com/Hedgewars\">Facebook</a>").arg("<a href=\"http://twitter.com/hedgewars\">Twitter</a>");
         Tips << tr("Feel free to draw your own graves, hats, flags or even maps and themes! But note that you'll have to share them somewhere to use them online.", "Tips");
@@ -617,6 +617,7 @@ PageOptions::PageOptions(QWidget* parent) :
             editNetNick = new QLineEdit(groupMisc);
             editNetNick->setMaxLength(20);
             editNetNick->setText(QLineEdit::tr("unnamed"));
+            connect(editNetNick, SIGNAL(editingFinished()), this, SLOT(trimNetNick()));
             MiscLayout->addWidget(editNetNick, 0, 1);
 
             QLabel *labelLanguage = new QLabel(groupMisc);
@@ -669,6 +670,7 @@ PageOptions::PageOptions(QWidget* parent) :
 
             QVBoxLayout * GBAlayout = new QVBoxLayout(AGGroupBox);
             QHBoxLayout * GBAreslayout = new QHBoxLayout(0);
+            QHBoxLayout * GBAstereolayout = new QHBoxLayout(0);
             QHBoxLayout * GBAqualayout = new QHBoxLayout(0);
 
             CBFrontendFullscreen = new QCheckBox(AGGroupBox);
@@ -704,6 +706,7 @@ PageOptions::PageOptions(QWidget* parent) :
             CBFullscreen = new QCheckBox(AGGroupBox);
             CBFullscreen->setText(QCheckBox::tr("Fullscreen"));
             GBAlayout->addWidget(CBFullscreen);
+            connect(CBFullscreen, SIGNAL(stateChanged(int)), this, SLOT(setFullscreen(void)));
 
             QLabel * quality = new QLabel(AGGroupBox);
             quality->setText(QLabel::tr("Quality"));
@@ -717,6 +720,25 @@ PageOptions::PageOptions(QWidget* parent) :
             SLQuality->setFixedWidth(150);
             GBAqualayout->addWidget(SLQuality);
             GBAlayout->addLayout(GBAqualayout);
+            QLabel * stereo = new QLabel(AGGroupBox);
+            stereo->setText(QLabel::tr("Stereo rendering"));
+            GBAstereolayout->addWidget(stereo);
+
+            CBStereoMode = new QComboBox(AGGroupBox);
+            CBStereoMode->addItem(QComboBox::tr("Disabled"));
+            CBStereoMode->addItem(QComboBox::tr("Red/Cyan"));
+            CBStereoMode->addItem(QComboBox::tr("Cyan/Red"));
+            CBStereoMode->addItem(QComboBox::tr("Red/Blue"));
+            CBStereoMode->addItem(QComboBox::tr("Blue/Red"));
+            CBStereoMode->addItem(QComboBox::tr("Red/Green"));
+            CBStereoMode->addItem(QComboBox::tr("Green/Red"));
+            CBStereoMode->addItem(QComboBox::tr("Side-by-side"));
+            CBStereoMode->addItem(QComboBox::tr("Top-Bottom"));
+            CBStereoMode->addItem(QComboBox::tr("Wiggle"));
+            connect(CBStereoMode, SIGNAL(currentIndexChanged(int)), this, SLOT(forceFullscreen(int)));
+
+            GBAstereolayout->addWidget(CBStereoMode);
+            GBAlayout->addLayout(GBAstereolayout);
 
             hr = new QFrame(AGGroupBox);
             hr->setFrameStyle(QFrame::HLine);
@@ -781,8 +803,39 @@ PageOptions::PageOptions(QWidget* parent) :
     BtnBack->setFixedHeight(BtnSaveOptions->height());
     BtnBack->setFixedWidth(BtnBack->width()+2);
     BtnBack->setStyleSheet("QPushButton{margin: 22px 0 9px 2px;}");
+}
 
-//    BtnAssociateFiles = addButton("");
+void PageOptions::forceFullscreen(int index)
+{
+    if (index != 0) {
+        previousFullscreenValue = this->CBFullscreen->isChecked();
+        this->CBFullscreen->setChecked(true);
+        this->CBFullscreen->setEnabled(false);
+        previousQuality = this->SLQuality->value();
+        this->SLQuality->setValue(this->SLQuality->maximum());
+        this->SLQuality->setEnabled(false);
+    } else {
+        this->CBFullscreen->setChecked(previousFullscreenValue);
+        this->CBFullscreen->setEnabled(true);
+        this->SLQuality->setValue(previousQuality);
+        this->SLQuality->setEnabled(true);
+    }
+}
+
+void PageOptions::setFullscreen(void)
+{
+    int tmp = this->CBResolution->currentIndex();
+    if (this->CBFullscreen->isChecked())
+        this->CBResolution->setCurrentIndex(0);
+    else
+        this->CBResolution->setCurrentIndex(previousResolutionIndex);
+    previousResolutionIndex = tmp;
+    this->CBResolution->setEnabled(!this->CBFullscreen->isChecked());
+}
+
+void PageOptions::trimNetNick()
+{
+    editNetNick->setText(editNetNick->text().trimmed());
 }
 
 PageNet::PageNet(QWidget* parent) : AbstractPage(parent)
@@ -931,6 +984,7 @@ PageNetGame::PageNetGame(QWidget* parent, QSettings * gameSettings, SDLInteracti
     // chatwidget
     pChatWidget = new HWChatWidget(this, gameSettings, sdli, true);
     pChatWidget->setShowReady(true); // show status bulbs by default
+    pChatWidget->setShowFollow(false); // don't show follow in nicks' context menus
     pageLayout->addWidget(pChatWidget, 2, 0, 1, 2);
     pageLayout->setRowStretch(1, 100);
 
@@ -1306,6 +1360,8 @@ void PageRoomsList::setRoomsList(const QStringList & list)
                     compString = "Random Map";
                 } else if (a == 5 && compString == "+maze+") {
                     compString = "Random Maze";
+                } else if (a == 5 && compString == "+drawn+") {
+                    compString = "Drawn Map";
                 }
                 if (compString.contains(searchText->text(), Qt::CaseInsensitive)) {
                     found = true;
@@ -1622,6 +1678,10 @@ PageScheme::PageScheme(QWidget* parent) :
     TBW_morewind->setToolTip("<b>" + ToggleButtonWidget::tr("More Wind") + "</b>:<br />" + tr("Wind will affect almost everything."));
     glGMLayout->addWidget(TBW_morewind,4,2,1,1);
 
+    TBW_tagteam = new ToggleButtonWidget(gbGameModes, ":/res/btnMoreWind.png");
+    TBW_tagteam->setToolTip("<b>" + ToggleButtonWidget::tr("Tag Team") + "</b>:<br />" + tr("Teams in each clan takes successive turns but have to share turn time."));
+    glGMLayout->addWidget(TBW_tagteam,4,3,1,1);
+
     // Right
     QLabel * l;
 
@@ -1877,20 +1937,21 @@ void PageScheme::setModel(QAbstractItemModel * model)
     mapper->addMapping(TBW_perhogammo, 21);
     mapper->addMapping(TBW_nowind, 22);
     mapper->addMapping(TBW_morewind, 23);
-    mapper->addMapping(SB_DamageModifier, 24);
-    mapper->addMapping(SB_TurnTime, 25);
-    mapper->addMapping(SB_InitHealth, 26);
-    mapper->addMapping(SB_SuddenDeath, 27);
-    mapper->addMapping(SB_CaseProb, 28);
-    mapper->addMapping(SB_MinesTime, 29);
-    mapper->addMapping(SB_Mines, 30);
-    mapper->addMapping(SB_MineDuds, 31);
-    mapper->addMapping(SB_Explosives, 32);
-    mapper->addMapping(SB_HealthCrates, 33);
-    mapper->addMapping(SB_CrateHealth, 34);
-    mapper->addMapping(SB_WaterRise, 35);
-    mapper->addMapping(SB_HealthDecrease, 36);
-    mapper->addMapping(SB_RopeModifier, 37);
+    mapper->addMapping(TBW_tagteam, 24);
+    mapper->addMapping(SB_DamageModifier, 25);
+    mapper->addMapping(SB_TurnTime, 26);
+    mapper->addMapping(SB_InitHealth, 27);
+    mapper->addMapping(SB_SuddenDeath, 28);
+    mapper->addMapping(SB_CaseProb, 29);
+    mapper->addMapping(SB_MinesTime, 30);
+    mapper->addMapping(SB_Mines, 31);
+    mapper->addMapping(SB_MineDuds, 32);
+    mapper->addMapping(SB_Explosives, 33);
+    mapper->addMapping(SB_HealthCrates, 34);
+    mapper->addMapping(SB_CrateHealth, 35);
+    mapper->addMapping(SB_WaterRise, 36);
+    mapper->addMapping(SB_HealthDecrease, 37);
+    mapper->addMapping(SB_RopeModifier, 38);
 
     mapper->toFirst();
 }
@@ -1968,6 +2029,8 @@ PageAdmin::PageAdmin(QWidget* parent) :
     pageLayout->addWidget(lblPreview, 4, 0);
 
     tb = new QTextBrowser(this);
+    tb->setOpenExternalLinks(true);
+    tb->document()->setDefaultStyleSheet(HWChatWidget::STYLE);
     pageLayout->addWidget(tb, 4, 1, 1, 2);
     connect(leServerMessageNew, SIGNAL(textEdited(const QString &)), tb, SLOT(setHtml(const QString &)));
     connect(leServerMessageOld, SIGNAL(textEdited(const QString &)), tb, SLOT(setHtml(const QString &)));

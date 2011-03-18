@@ -12,9 +12,6 @@ set(QT_USE_QTMAIN TRUE)
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 
-#find_package(QCA2 REQUIRED)
-#include_directories(${QCA2_INCLUDE_DIR})
-
 # Configure for SDL
 find_package(SDL REQUIRED)
 find_package(SDL_mixer REQUIRED)
@@ -171,11 +168,13 @@ if(APPLE)
     set(hwfr_src ${hwfr_src} InstallController.cpp CocoaInitializer.mm M3Panel.mm M3InstallController.m NSWorkspace_RBAdditions.m)
     set(HW_LINK_LIBS IOKit)
 
-    find_package(Sparkle)
-    if(SPARKLE_FOUND)
-                add_definitions(-DSPARKLE_ENABLED)
-        set(hwfr_src ${hwfr_src} AutoUpdater.cpp SparkleAutoUpdater.mm)
-                set(HW_LINK_LIBS ${SPARKLE_LIBRARY} ${HW_LINK_LIBS})
+    if(NOT NOAUTOUPDATE)
+        find_package(Sparkle)
+        if(SPARKLE_FOUND)
+            add_definitions(-DSPARKLE_ENABLED)
+            set(hwfr_src ${hwfr_src} AutoUpdater.cpp SparkleAutoUpdater.mm)
+            set(HW_LINK_LIBS ${SPARKLE_LIBRARY} ${HW_LINK_LIBS})
+        endif()
     endif()
 endif()
 

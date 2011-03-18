@@ -1,9 +1,30 @@
+(*
+ * Hedgewars, a free turn based strategy game
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ *)
+
 {$INCLUDE "options.inc"}
 
 unit uTypes;
 interface
 
 uses SDLh, uFloat, GLunit, uConsts, Math;
+
+// NOTE: typed const is a variable despite const qualifier
+// in freepascal you may actually use var for the same purpose
 
 type
     HwColor4f = record
@@ -16,7 +37,7 @@ type
 
     TPathType = (ptNone, ptData, ptGraphics, ptThemes, ptCurrTheme, ptTeams, ptMaps,
             ptMapCurrent, ptDemos, ptSounds, ptGraves, ptFonts, ptForts,
-            ptLocale, ptAmmoMenu, ptHedgehog, ptVoices, ptHats, ptFlags, ptMissionMaps);
+            ptLocale, ptAmmoMenu, ptHedgehog, ptVoices, ptHats, ptFlags, ptMissionMaps, ptSuddenDeath);
 
     TSprite = (sprWater, sprCloud, sprBomb, sprBigDigit, sprFrame,
             sprLag, sprArrow, sprBazookaShell, sprTargetP, sprBee,
@@ -52,7 +73,8 @@ type
             sprCheese, sprHandCheese, sprHandFlamethrower, sprChunk, sprNote,
             sprSMineOff, sprSMineOn, sprHandSMine, sprHammer,
             sprHandResurrector, sprCross, sprAirDrill, sprNapalmBomb,
-            sprBulletHit, sprSnowball, sprHandSnowball, sprSnow
+            sprBulletHit, sprSnowball, sprHandSnowball, sprSnow,
+            sprSDFlake, sprSDWater, sprSDCloud, sprSDSplash, sprSDDroplet
             );
 
     // Gears that interact with other Gears and/or Land
@@ -67,7 +89,7 @@ type
             gtSniperRifleShot, gtJetpack, gtMolotov, gtExplosives, gtBirdy, // 45
             gtEgg, gtPortal, gtPiano, gtGasBomb, gtSineGunShot, gtFlamethrower, // 51
             gtSMine, gtPoisonCloud, gtHammer, gtHammerHit, gtResurrector, // 56
-            gtNapalmBomb, gtSnowball, gtFlake); // 58
+            gtNapalmBomb, gtSnowball, gtFlake, gtStructure); // 60
 
     // Gears that are _only_ of visual nature (e.g. background stuff, visual effects, speechbubbles, etc.)
     TVisualGearType = (vgtFlake, vgtCloud, vgtExplPart, vgtExplPart2, vgtFire,
@@ -96,13 +118,13 @@ type
             sndVaporize, sndWarp, sndSuddenDeath, sndMortar, sndShutter,
             sndHomerun, sndMolotov, sndCover, sndUhOh, sndOops,
             sndNooo, sndHello, sndRopeShot, sndRopeAttach, sndRopeRelease,
-            sndSwitchHog, sndVictory, sndSniperReload, sndSteps, sndLowGravity,
+            sndSwitchHog, sndVictory, sndFlawless, sndSniperReload, sndSteps, sndLowGravity,
             sndHellishImpact1, sndHellishImpact2, sndHellishImpact3, sndHellishImpact4,
             sndMelonImpact, sndDroplet1, sndDroplet2, sndDroplet3, sndEggBreak, sndDrillRocket,
             sndPoisonCough, sndPoisonMoan, sndBirdyLay, sndWhistle, sndBeeWater,
             sndPiano0, sndPiano1, sndPiano2, sndPiano3, sndPiano4, sndPiano5, sndPiano6, sndPiano7, sndPiano8,
             sndSkip, sndSineGun, sndOoff1, sndOoff2, sndOoff3, sndWhack,
-            sndComeonthen, sndParachute, sndBump, sndResurrector);
+            sndComeonthen, sndParachute, sndBump, sndResurrector, sndPlane);
 
     TAmmoType  = (amNothing, amGrenade, amClusterBomb, amBazooka, amBee, amShotgun, amPickHammer, // 6
             amSkip, amRope, amMine, amDEagle, amDynamite, amFirePunch, amWhip, // 13
@@ -112,7 +134,7 @@ type
             amRCPlane, amLowGravity, amExtraDamage, amInvulnerable, amExtraTime, // 35
             amLaserSight, amVampiric, amSniperRifle, amJetpack, amMolotov, amBirdy, amPortalGun, // 42
             amPiano, amGasBomb, amSineGun, amFlamethrower, amSMine, amHammer, // 48
-            amResurrector, amDrillStrike, amSnowball);
+            amResurrector, amDrillStrike, amSnowball, amTardis, amStructure);
 
     TCrateType = (HealthCrate, AmmoCrate, UtilityCrate);
 
@@ -126,6 +148,9 @@ type
             siMaxTeamKills, siMaxTurnSkips );
 
     TWave = (waveRollup, waveSad, waveWave, waveHurrah, waveLemonade, waveShrug, waveJuggle);
+
+    TRenderMode = (rmDefault, rmLeftEye, rmRightEye);
+    TStereoMode = (smNone, smRedCyan, smCyanRed, smRedBlue, smBlueRed, smRedGreen, smGreenRed, smHorizontal, smVertical, smAFR);
 
     THHFont = record
             Handle: PTTF_Font;
@@ -274,6 +299,7 @@ For example, say, a mode where the weaponset is reset each turn, or on sudden de
     THedgehog = record
             Name: string[MAXNAMELEN];
             Gear: PGear;
+            GearHidden: PGear;
             SpeechGear: PVisualGear;
             NameTagTex,
             HealthTagTex,
@@ -327,13 +353,15 @@ For example, say, a mode where the weaponset is reset each turn, or on sudden de
             Color: Longword;
             Teams: array[0..Pred(cMaxTeams)] of PTeam;
             TeamsNumber: Longword;
+            TagTeamIndex: Longword;
             CurrTeam: LongWord;
             ClanHealth: LongInt;
             ClanIndex: LongInt;
             TurnNumber: LongWord;
+            Flawless: boolean;
             end;
 
-     TAmmoStrId = (sidNothing, sidGrenade, sidClusterBomb, sidBazooka, sidBee, sidShotgun,
+     TAmmoStrId = (sidGrenade, sidClusterBomb, sidBazooka, sidBee, sidShotgun,
             sidPickHammer, sidSkip, sidRope, sidMine, sidDEagle,
             sidDynamite, sidBaseballBat, sidFirePunch, sidSeconds,
             sidParachute, sidAirAttack, sidMineStrike, sidBlowTorch,
@@ -343,7 +371,7 @@ For example, say, a mode where the weaponset is reset each turn, or on sudden de
             sidLowGravity, sidExtraDamage, sidInvulnerable, sidExtraTime,
             sidLaserSight, sidVampiric, sidSniperRifle, sidJetpack,
             sidMolotov, sidBirdy, sidPortalGun, sidPiano, sidGasBomb, sidSineGun, sidFlamethrower,
-            sidSMine, sidHammer, sidResurrector, sidDrillStrike, sidSnowball);
+            sidSMine, sidHammer, sidResurrector, sidDrillStrike, sidSnowball, sidNothing, sidTardis, sidStructure);
 
     TMsgStrId = (sidStartFight, sidDraw, sidWinner, sidVolume, sidPaused,
             sidConfirm, sidSuddenDeath, sidRemaining, sidFuel, sidSync,

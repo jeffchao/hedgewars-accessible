@@ -1,6 +1,6 @@
 /*
  * Hedgewars, a free turn based strategy game
- * Copyright (c) 2006-2010 Andrey Korotaev <unC0Rr@gmail.com>
+ * Copyright (c) 2006-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +48,7 @@ GameUIConfig::GameUIConfig(HWForm * FormWidgets, const QString & fileName)
     Form->ui.pageOptions->CBFrontendFullscreen->setChecked(ffscr);
 
     Form->ui.pageOptions->SLQuality->setValue(value("video/quality", 5).toUInt());
+    Form->ui.pageOptions->CBStereoMode->setCurrentIndex(value("video/stereo", 0).toUInt());
     Form->ui.pageOptions->CBFrontendEffects->setChecked(frontendEffects);
     Form->ui.pageOptions->CBEnableSound->setChecked(value("audio/sound", true).toBool());
     Form->ui.pageOptions->CBEnableFrontendSound->setChecked(value("frontend/sound", true).toBool());
@@ -93,7 +94,7 @@ QStringList GameUIConfig::GetTeamsList()
 {
     QDir teamdir;
     teamdir.cd(cfgdir->absolutePath() + "/Teams");
-    QStringList teamslist = teamdir.entryList(QStringList("*.hwt"));
+    QStringList teamslist = teamdir.entryList(QStringList("*.hwt"),QDir::Files|QDir::Hidden);
     QStringList cleanedList;
     for (QStringList::Iterator it = teamslist.begin(); it != teamslist.end(); ++it ) {
             QString tmpTeamStr=(*it).replace(QRegExp("^(.*)\\.hwt$"), "\\1");
@@ -113,6 +114,7 @@ void GameUIConfig::SaveOptions()
     setValue("video/fullscreen", vid_Fullscreen());
 
     setValue("video/quality", Form->ui.pageOptions->SLQuality->value());
+    setValue("video/stereo", stereoMode());
 
     setValue("frontend/effects", isFrontendEffects());
 
@@ -183,7 +185,7 @@ quint32 GameUIConfig::translateQuality()
     quint32 rqNoBackground = 0x00000004;  // don't draw background
     quint32 rqSimpleRope = 0x00000008;  // avoid drawing rope
     quint32 rq2DWater = 0x00000010;  // disabe 3D water effect
-    quint32 rqFancyBoom = 0x00000020;  // no fancy explosion effects
+    quint32 rqAntiBoom = 0x00000020;  // no fancy explosion effects
     quint32 rqKillFlakes = 0x00000040;  // no flakes
     quint32 rqSlowMenu = 0x00000080;  // ammomenu appears with no animation
     quint32 rqPlainSplash = 0x00000100;  // no droplets
@@ -204,15 +206,15 @@ quint32 GameUIConfig::translateQuality()
         break;
       case 2:
         result |= rqBlurryLand | rqKillFlakes | rqPlainSplash | rq2DWater |
-                  rqFancyBoom | rqSlowMenu;
+                  rqAntiBoom | rqSlowMenu;
         break;
       case 1:
         result |= rqBlurryLand | rqKillFlakes | rqPlainSplash | rq2DWater |
-                  rqFancyBoom | rqSlowMenu | rqSimpleRope | rqDesyncVBlank;
+                  rqAntiBoom | rqSlowMenu | rqSimpleRope | rqDesyncVBlank;
         break;
       case 0:
         result |= rqBlurryLand | rqKillFlakes | rqPlainSplash | rq2DWater |
-                  rqFancyBoom | rqSlowMenu | rqSimpleRope | rqDesyncVBlank |
+                  rqAntiBoom | rqSlowMenu | rqSimpleRope | rqDesyncVBlank |
                   rqNoBackground | rqClampLess;
         break;
       default:
@@ -259,6 +261,11 @@ bool GameUIConfig::isShowFPSEnabled()
 bool GameUIConfig::isAltDamageEnabled()
 {
     return Form->ui.pageOptions->CBAltDamage->isChecked();
+}
+
+quint32 GameUIConfig::stereoMode() const
+{
+    return Form->ui.pageOptions->CBStereoMode->currentIndex();
 }
 
 bool GameUIConfig::appendDateTimeToRecordName()

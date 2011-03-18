@@ -1,4 +1,23 @@
+(*
+ * Hedgewars, a free turn based strategy game
+ * Copyright (c) 2004-2011 Andrey Korotaev <unC0Rr@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ *)
+
 {$INCLUDE "options.inc"}
+
 unit uGearsRender;
 
 interface
@@ -186,7 +205,7 @@ begin
     if (Gear^.State and gstHHDeath) <> 0 then
         begin
         DrawSprite(sprHHDeath, ox - 16, oy - 26, Gear^.Pos);
-        Tint(HH^.Team^.Clan^.Color);
+        Tint(HH^.Team^.Clan^.Color shl 8 or $FF);
         DrawSprite(sprHHDeath, ox - 16, oy - 26, Gear^.Pos + 8);
         Tint($FF, $FF, $FF, $FF);
         exit
@@ -353,7 +372,7 @@ begin
                                 i*DxDy2Angle(CurAmmoGear^.dY, CurAmmoGear^.dX) + hAngle);
                             if HatTex^.w > 64 then
                                 begin
-                                Tint(HH^.Team^.Clan^.Color);
+                                Tint(HH^.Team^.Clan^.Color shl 8 or $FF);
                                 DrawRotatedTextureF(HatTex, 1.0, -1.0, -6.0, ox, oy, 32, i, 32, 32,
                                     i*DxDy2Angle(CurAmmoGear^.dY, CurAmmoGear^.dX) + hAngle);
                                 Tint($FF, $FF, $FF, $FF)
@@ -383,7 +402,7 @@ begin
                                 32);
                             if HatTex^.w > 64 then
                                 begin
-                                Tint(HH^.Team^.Clan^.Color);
+                                Tint(HH^.Team^.Clan^.Color shl 8 or $FF);
                                 DrawTextureF(HatTex,
                                     1,
                                     sx,
@@ -551,11 +570,11 @@ begin
                 amRope: DrawRotated(sprHandRope, hx, hy, sign, aangle);
                 amShotgun: DrawRotated(sprHandShotgun, hx, hy, sign, aangle);
                 amDEagle: DrawRotated(sprHandDEagle, hx, hy, sign, aangle);
-                amSineGun: DrawRotated(sprHandShotgun, hx, hy, sign, aangle);
+                amSineGun: DrawRotatedF(sprHandSinegun, hx, hy, 73+(sign * (RealTicks div 73)) mod 8, sign, aangle);
                 amPortalGun: if (CurWeapon^.Timer and 2) <> 0 then // Add a new Hedgehog value instead of abusing timer?
                                 DrawRotatedF(sprPortalGun, hx, hy, 0, sign, aangle)
                         else
-                                DrawRotatedF(sprPortalGun, hx, hy, 1+(CurWeapon^.Timer and 1), sign, aangle);
+                                DrawRotatedF(sprPortalGun, hx, hy, 1+CurWeapon^.Pos, sign, aangle);
                 amSniperRifle: DrawRotatedF(sprSniperRifle, hx, hy, 0, sign, aangle);
                 amBlowTorch: DrawRotated(sprHandBlowTorch, hx, hy, sign, aangle);
                 amCake: DrawRotated(sprHandCake, hx, hy, sign, aangle);
@@ -705,7 +724,7 @@ begin
                     32);
                 if HatTex^.w > 64 then
                     begin
-                    Tint(HH^.Team^.Clan^.Color);
+                    Tint(HH^.Team^.Clan^.Color shl 8 or $FF);
                     DrawTextureF(HatTex,
                         HatVisibility,
                         sx,
@@ -729,7 +748,7 @@ begin
                     32);
                 if HatTex^.w > 64 then
                     begin
-                    Tint(HH^.Team^.Clan^.Color);
+                    Tint(HH^.Team^.Clan^.Color shl 8 or $FF);
                     DrawTextureF(HatTex,
                         HatVisibility,
                         sx,
@@ -855,8 +874,6 @@ begin
                      DrawRotated(sprPlane, x, y, -1,  DxDy2Angle(Gear^.dX, Gear^.dY) + 90)
                   else
                      DrawRotated(sprPlane, x, y,0,DxDy2Angle(Gear^.dY, Gear^.dX));
-                  if ((TrainingFlags and tfRCPlane) <> 0) and (TrainingTargetGear <> nil) and ((Gear^.State and gstDrowning) = 0) then
-                     DrawRotatedf(sprFinger, x, y, GameTicks div 32 mod 16, 0, DxDy2Angle(Gear^.X - TrainingTargetGear^.X, TrainingTargetGear^.Y - Gear^.Y));
                   end;
        gtBall: DrawRotatedf(sprBalls, x, y, Gear^.Tag,0, Gear^.DirAngle);
 
@@ -1026,6 +1043,7 @@ begin
                       //DrawRotatedF(sprFlake, x-SpritesData[sprFlake].Width div 2, y-SpritesData[sprFlake].Height div 2, Gear^.Timer, 1, Gear^.DirAngle);
                       DrawRotatedF(sprFlake, x, y, Gear^.Timer, 1, Gear^.DirAngle)
                   end;
+       gtStructure: DrawSprite(sprTarget, x - 16, y - 16, 0);
 
          end;
       if Gear^.RenderTimer and (Gear^.Tex <> nil) then DrawCentered(x + 8, y + 8, Gear^.Tex);

@@ -1,6 +1,7 @@
 /*
  * Hedgewars, a free turn based strategy game
  * Copyright (c) 2007 Igor Ulyanov <iulyanov@gmail.com>
+ * Copyright (c) 2007-2011 Andrey Korotaev <unC0Rr@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +24,32 @@
 #include <QListWidget>
 #include <QString>
 #include <QGridLayout>
+#include <QRegExp>
 
 #include "SDLs.h"
 
+class ListWidgetNickItem;
 class QTextBrowser;
 class QLineEdit;
 class QListWidget;
 class QSettings;
 class SDLInteraction;
+
+// this class is for custom nick sorting
+class ListWidgetNickItem : public QListWidgetItem
+{
+public:
+  ListWidgetNickItem(const QString& nick, bool isFriend, bool isIgnored);
+  bool operator<(const QListWidgetItem & other) const;
+  void setFriend(bool isFriend);
+  void setIgnored(bool isIgnored);
+  bool isFriend();
+  bool ignored();
+
+private:
+  bool aFriend;
+  bool isIgnored;
+};
 
 class HWChatWidget : public QWidget
 {
@@ -41,15 +60,20 @@ class HWChatWidget : public QWidget
   void loadLists(const QString & nick);
   void saveLists(const QString & nick);
   void setShowReady(bool s);
+  void setShowFollow(bool enabled);
+  static const char* STYLE;
+  QStringList ignoreList, friendsList;
 
 private:
   void loadList(QStringList & list, const QString & file);
   void saveList(QStringList & list, const QString & file);
-  void updateIcon(QListWidgetItem *item);
-  void updateIcons();
+  void updateNickItem(QListWidgetItem *item);
+  void updateNickItems();
+  static const QRegExp URLREGEXP;
 
  public slots:
   void onChatString(const QString& str);
+  void onChatString(const QString& nick, const QString& str);
   void onServerMessage(const QString& str);
   void nickAdded(const QString& nick, bool notifyNick);
   void nickRemoved(const QString& nick);
@@ -68,7 +92,6 @@ private:
   QGridLayout mainLayout;
   QTextBrowser* chatText;
   QStringList chatStrings;
-  QStringList ignoreList, friendsList;
   QListWidget* chatNicks;
   QLineEdit* chatEditLine;
   QAction * acInfo;
@@ -93,6 +116,7 @@ private:
   void onFriend();
   void chatNickDoubleClicked(QListWidgetItem * item);
   void chatNickSelected(int index);
+  void linkClicked(const QUrl & link);
 };
 
 #endif // _CHAT_WIDGET_INCLUDED

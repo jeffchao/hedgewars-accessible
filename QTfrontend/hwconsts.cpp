@@ -1,0 +1,105 @@
+/*
+ * Hedgewars, a free turn based strategy game
+ * Copyright (c) 2007-2011 Andrey Korotaev <unC0Rr@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ */
+
+#include "hwconsts.h"
+
+QString * cProtoVer = new QString("38");
+QString * cDataDir = new QString("../Resources/");
+QString * cConfigDir = new QString("");
+QString * cVersionString = new QString("0.9.16-5011:14b2915a1404");
+
+QDir * bindir = new QDir("Hedgewars.app/Contents/MacOS/");
+QDir * cfgdir = new QDir();
+QDir * datadir = new QDir();
+
+QStringList * Themes;
+QStringList * mapList;
+QStringList * scriptList;
+
+bool custom_config = false;
+bool custom_data = false;
+
+int cMaxTeams = 6;
+int cMinServerVersion = 0;
+
+QString * cDefaultAmmoStore = new QString(
+        "93919294221991210322351110012010000002111101010111299"
+        "04050405416006555465544647765766666661555101011154111"
+        "00000000000002055000000400070040000000002000000006000"
+        "13111103121111111231141111111111111112111111011111211"
+        );
+int cAmmoNumber = cDefaultAmmoStore->size() / 4;
+
+QList< QPair<QString, QString> > cDefaultAmmos =
+        QList< QPair<QString, QString> >()
+        << qMakePair(QString("Default"), *cDefaultAmmoStore)
+        << qMakePair(QString("Crazy"),     QString(
+        // TODO: Remove Piano's unlimited uses!
+        "99999999999999999929999999999999992999999999099999922"
+        "11111101111111111111111111111111111111111111011111111"
+        "00000000000000000000000000000000000000000000000000000"
+        "13111103121111111231141111111111111112111101011111111"
+        ))
+        << qMakePair(QString("Pro Mode"),  QString(
+        "90900090000000000000090000000000000000000000000000000"
+        "00000000000000000000000000000000000000000000000000000"
+        "00000000000002055000000400070040000000002000000000000"
+        "11111111111111111111111111111111111111111001011111111"
+        ))
+        << qMakePair(QString("Shoppa"),    QString(
+        "00000099000000000000000000000000000000000000000000000"
+        "44444100442444022101121212224220000000020004000100111"
+        "00000000000000000000000000000000000000000000000000000"
+        "11111111111111111111111111111111111111111011011111111"
+        ))
+        << qMakePair(QString("Clean Slate"),QString(
+        "10100090000100000110000000000000000000000000000010000"
+        "04050405416006555465544647765766666661555101011154111"
+        "00000000000000000000000000000000000000000000000000000"
+        "13111103121111111231141111111111111112111111011111111"
+        ))
+        << qMakePair(QString("Minefield"), QString(
+        "00000099000900000003000000000000000000000000000000000"
+        "00000000000000000000000000000000000000000000000000000"
+        "00000000000002055000000400070040000000002000000006000"
+        "11111111111111111111111111111111111111111111011111111"
+        ))
+        << qMakePair(QString("Thinking with Portals"), QString(
+        "90000090020000000021000000000000001100000900000000000"
+        "04050405416006555465544647765766666661555101011154111"
+        "00000000000002055000000400070040000000002000000006000"
+        "13111103121111111231141111111111111112111111011111111"
+        ));
+
+QColor *colors[] = {
+                    new QColor(221,   0,   0), // classic red
+                    new QColor( 51, 102, 217), // dark blue
+                    new QColor( 62, 147,  33), // classic green
+                    new QColor(162,  61, 187), // classic purple
+                    new QColor(255, 255,  0), // yellow
+                    new QColor(115, 115, 115), // classic gray
+                    new QColor(0, 255, 255),   // cyan
+                    new QColor(255, 136, 136), // peach
+                    // add new colors here
+                    0};
+
+QString * netHost = new QString();
+quint16 netPort = 46631;
+
+bool haveServer = false;
+bool isDevBuild = true;

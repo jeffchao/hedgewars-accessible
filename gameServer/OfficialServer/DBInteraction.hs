@@ -1,102 +1,130 @@
-{-# LANGUAGE CPP, ScopedTypeVariables #-}
+{-# LANGUAGE CPP, ScopedTypeVariables, OverloadedStrings #-}
 module OfficialServer.DBInteraction
 (
     startDBConnection
 ) where
 
 import Prelude hiding (catch);
-import System.Process
-import System.IO
 import Control.Concurrent
-import qualified Control.Exception as Exception
 import Control.Monad
+import Data.List as L
+import Data.ByteString.Char8 as B
+#if defined(OFFICIAL_SERVER)
+import System.Process
+import System.IO as SIO
+import qualified Control.Exception as Exception
 import qualified Data.Map as Map
 import Data.Maybe
-import System.Log.Logger
 import Data.Time
+import System.Log.Logger
+#endif
 ------------------------
 import CoreTypes
+#if defined(OFFICIAL_SERVER)
 import Utils
+#endif
 
+localAddressList :: [B.ByteString]
 localAddressList = ["127.0.0.1", "0:0:0:0:0:0:0:1", "0:0:0:0:0:ffff:7f00:1"]
 
-fakeDbConnection serverInfo = do
-    q <- readChan $ dbQueries serverInfo
+fakeDbConnection :: forall b. ServerInfo -> IO b
+fakeDbConnection si = forever $ do
+    q <- readChan $ dbQueries si
     case q of
-        CheckAccount clUid _ clHost -> do
-            writeChan (coreChan serverInfo) $ ClientAccountInfo (clUid,
-                if clHost `elem` localAddressList then Admin else Guest)
+        CheckAccount clId clUid _ clHost ->
+            writeChan (coreChan si) $ ClientAccountInfo clId clUid (if clHost `L.elem` localAddressList then Admin else Guest)
         ClearCache -> return ()
         SendStats {} -> return ()
 
-    fakeDbConnection serverInfo
-
+dbConnectionLoop :: ServerInfo -> IO ()
 
 #if defined(OFFICIAL_SERVER)
-pipeDbConnectionLoop queries coreChan hIn hOut accountsCache =
-    Exception.handle (\(e :: Exception.IOException) -> warningM "Database" (show e) >> return accountsCache) $
+flushRequests :: ServerInfo -> IO ()
+flushRequests si = do
+    e <- isEmptyChan $ dbQueries si
+    unless e $ do
+        q <- readChan $ dbQueries si
+        case q of
+            CheckAccount clId clUid _ clHost ->
+                writeChan (coreChan si) $ ClientAccountInfo clId clUid (if clHost `L.elem` localAddressList then Admin else Guest)
+            ClearCache -> return ()
+            SendStats {} -> return ()
+        flushRequests si
+
+pipeDbConnectionLoop :: Chan DBQuery -> Chan CoreMessage -> Handle -> Handle -> Map.Map ByteString (UTCTime, AccountInfo) -> Int -> IO (Map.Map ByteString (UTCTime, AccountInfo), Int)
+pipeDbConnectionLoop queries cChan hIn hOut accountsCache req =
+    Exception.handle (\(e :: Exception.IOException) -> warningM "Database" (show e) >> return (accountsCache, req)) $
     do
     q <- readChan queries
-    updatedCache <- case q of
-        CheckAccount clUid clNick _ -> do
+    (updatedCache, newReq) <- case q of
+        CheckAccount clId clUid clNick _ -> do
             let cacheEntry = clNick `Map.lookup` accountsCache
             currentTime <- getCurrentTime
             if (isNothing cacheEntry) || (currentTime `diffUTCTime` (fst . fromJust) cacheEntry > 2 * 24 * 60 * 60) then
                 do
-                    hPutStrLn hIn $ show q
+                    SIO.hPutStrLn hIn $ show q
                     hFlush hIn
 
-                    (clId, accountInfo) <- hGetLine hOut >>= (maybeException . maybeRead)
+                    (clId', clUid', accountInfo) <- SIO.hGetLine hOut >>= (maybeException . maybeRead)
 
-                    writeChan coreChan $ ClientAccountInfo (clId, accountInfo)
+                    writeChan cChan $ ClientAccountInfo clId' clUid' accountInfo
 
-                    return $ Map.insert clNick (currentTime, accountInfo) accountsCache
+                    return $ (Map.insert clNick (currentTime, accountInfo) accountsCache, req + 1)
                 `Exception.onException`
                     (unGetChan queries q)
                 else
                 do
-                    writeChan coreChan $ ClientAccountInfo (clUid, snd $ fromJust cacheEntry)
-                    return accountsCache
+                    writeChan cChan $ ClientAccountInfo clId clUid (snd $ fromJust cacheEntry)
+                    return (accountsCache, req)
 
-        ClearCache -> return Map.empty
+        ClearCache -> return (Map.empty, req)
         SendStats {} -> (
-                (hPutStrLn hIn $ show q) >>
+                (SIO.hPutStrLn hIn $ show q) >>
                 hFlush hIn >>
-                return accountsCache)
+                return (accountsCache, req))
                 `Exception.onException`
                 (unGetChan queries q)
 
-    pipeDbConnectionLoop queries coreChan hIn hOut updatedCache
+    pipeDbConnectionLoop queries cChan hIn hOut updatedCache newReq
     where
         maybeException (Just a) = return a
         maybeException Nothing = ioError (userError "Can't read")
 
+pipeDbConnection ::
+        Map.Map ByteString (UTCTime, AccountInfo)
+        -> ServerInfo
+        -> Int
+        -> IO ()
 
-pipeDbConnection accountsCache serverInfo = do
-    updatedCache <-
-        Exception.handle (\(e :: Exception.IOException) -> warningM "Database" (show e) >> return accountsCache) $ do
+pipeDbConnection accountsCache si errNum = do
+    (updatedCache, newErrNum) <-
+        Exception.handle (\(e :: Exception.IOException) -> warningM "Database" (show e) >> return (accountsCache, errNum + 1)) $ do
             (Just hIn, Just hOut, _, _) <- createProcess (proc "./OfficialServer/extdbinterface" [])
                     {std_in = CreatePipe,
                     std_out = CreatePipe}
             hSetBuffering hIn LineBuffering
             hSetBuffering hOut LineBuffering
 
-            hPutStrLn hIn $ dbHost serverInfo
-            hPutStrLn hIn $ dbLogin serverInfo
-            hPutStrLn hIn $ dbPassword serverInfo
-            pipeDbConnectionLoop (dbQueries serverInfo) (coreChan serverInfo) hIn hOut accountsCache
+            B.hPutStrLn hIn $ dbHost si
+            B.hPutStrLn hIn $ dbName si
+            B.hPutStrLn hIn $ dbLogin si
+            B.hPutStrLn hIn $ dbPassword si
+            (c, r) <- pipeDbConnectionLoop (dbQueries si) (coreChan si) hIn hOut accountsCache 0
+            return (c, if r > 0 then 0 else errNum + 1)
 
-    threadDelay (3 * 10^6)
-    pipeDbConnection updatedCache serverInfo
+    when (newErrNum > 1) $ flushRequests si
+    threadDelay (3000000)
+    pipeDbConnection updatedCache si newErrNum
 
-dbConnectionLoop serverInfo =
-        if (not . null $ dbHost serverInfo) then
-            pipeDbConnection Map.empty serverInfo
+dbConnectionLoop si =
+        if (not . B.null $ dbHost si) then
+            pipeDbConnection Map.empty si 0
         else
-            fakeDbConnection serverInfo
+            fakeDbConnection si
 #else
 dbConnectionLoop = fakeDbConnection
 #endif
 
+startDBConnection :: ServerInfo -> IO ()
 startDBConnection serverInfo =
-    forkIO $ dbConnectionLoop serverInfo
+    forkIO (dbConnectionLoop serverInfo) >> return ()
