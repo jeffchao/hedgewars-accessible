@@ -915,7 +915,7 @@ if (HHGear^.State and gstMoving) <> 0 then
     if (not cArtillery) and wasJumping and
         TestCollisionXwithGear(HHGear, hwSign(HHGear^.dX)) then SetLittle(HHGear^.dX);
 
-    //if Hedgehog^.Gear <> nil then doStepHedgehogMoving(HHGear);
+    if Hedgehog^.Gear <> nil then doStepHedgehogMoving(HHGear);
 
     if ((HHGear^.State and (gstMoving or gstDrowning)) = 0) then
         begin
