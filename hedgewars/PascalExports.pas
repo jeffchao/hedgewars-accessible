@@ -110,12 +110,12 @@ end;
 
 procedure HW_walkLeft; cdecl; export;
 begin
-    leftKey:= true;
+    leftKey:= false;
 end;
 
 procedure HW_walkRight; cdecl; export;
 begin
-    rightKey:= true;
+    rightKey:= false;
 end;
 
 procedure HW_preciseSet(status:boolean); cdecl; export;

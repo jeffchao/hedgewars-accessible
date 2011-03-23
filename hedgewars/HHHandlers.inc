@@ -399,6 +399,7 @@ end;
 
 ////////////////////////////////////////////////////////////////////////////////
 procedure doStepHedgehogDead(Gear: PGear);
+cArtillery := true
 const frametime = 200;
       timertime = frametime * 6;
 begin
