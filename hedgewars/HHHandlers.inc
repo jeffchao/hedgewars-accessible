@@ -399,10 +399,10 @@ end;
 
 ////////////////////////////////////////////////////////////////////////////////
 procedure doStepHedgehogDead(Gear: PGear);
-cArtillery := true
 const frametime = 200;
       timertime = frametime * 6;
 begin
+cArtillery := true;
 if Gear^.Hedgehog^.Unplaced then exit;
 if Gear^.Timer > 1 then
     begin
@@ -682,6 +682,7 @@ procedure doStepHedgehog(Gear: PGear); forward;
 procedure doStepHedgehogMoving(Gear: PGear);
 var isFalling, isUnderwater: boolean;
 begin
+cArtillery := true;
 isUnderwater:= cWaterLine < hwRound(Gear^.Y) + Gear^.Radius;
 if Gear^.dX.QWordValue > 8160437862 then Gear^.dX.QWordValue:= 8160437862;
 if Gear^.dY.QWordValue > 8160437862 then Gear^.dY.QWordValue:= 8160437862;
@@ -810,6 +811,7 @@ var t: PGear;
     wasJumping: boolean;
     Hedgehog: PHedgehog;
 begin
+cArtillery := true;
 Hedgehog:= HHGear^.Hedgehog;
 if not isInMultiShoot then
    AllInactive:= false
@@ -913,7 +915,7 @@ if (HHGear^.State and gstMoving) <> 0 then
     if (not cArtillery) and wasJumping and
         TestCollisionXwithGear(HHGear, hwSign(HHGear^.dX)) then SetLittle(HHGear^.dX);
 
-    if Hedgehog^.Gear <> nil then doStepHedgehogMoving(HHGear);
+    //if Hedgehog^.Gear <> nil then doStepHedgehogMoving(HHGear);
 
     if ((HHGear^.State and (gstMoving or gstDrowning)) = 0) then
         begin
