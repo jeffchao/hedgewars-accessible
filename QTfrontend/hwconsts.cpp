@@ -19,11 +19,11 @@
 #include "hwconsts.h"
 
 QString * cProtoVer = new QString("38");
-QString * cDataDir = new QString("../Resources/");
+QString * cDataDir = new QString("/usr/local/share/");
 QString * cConfigDir = new QString("");
 QString * cVersionString = new QString("0.9.16-dev");
 
-QDir * bindir = new QDir("Hedgewars.app/Contents/MacOS/");
+QDir * bindir = new QDir("/usr/local");
 QDir * cfgdir = new QDir();
 QDir * datadir = new QDir();
 

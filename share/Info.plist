@@ -17,9 +17,9 @@
 	<key>CFBundleSignature</key>
 	<string>Hedge</string>
 	<key>CFBundleVersion</key>
-	<string>0.9.16-dev</string>
+	<string>5011</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.9.16-dev</string>
+	<string>0.9.16-5011:14b2915a1404</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2004-2011 Hedgewars Project</string>
 	<key>NSAppleScriptEnabled</key>

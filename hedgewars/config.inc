@@ -18,4 +18,4 @@
 
 const cNetProtoVersion = 38;
       cVersionString = '0.9.16-dev';
-      cLuaLibrary = 'lua';
+      cLuaLibrary = 'liblua5.1.so';

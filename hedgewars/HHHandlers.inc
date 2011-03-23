@@ -18,6 +18,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+
 procedure HHHurt(Hedgehog: PHedgehog; Source: TDamageSource);
 begin
 if (Source = dsFall) or (Source = dsExplosion) then
@@ -647,13 +648,33 @@ var da: LongWord;
 begin
 with HHGear^.Hedgehog^ do
     if (CurAmmoType = amRope)
-    and ((HHGear^.State and (gstMoving or gstHHJumping)) = gstMoving) then da:= 2 else da:= 1;
-
-if (((HHGear^.Message and gmPrecise) = 0) or ((GameTicks mod 5) = 1)) then
-    if ((HHGear^.Message and gmUp) <> 0) and (HHGear^.Angle >= CurMinAngle + da) then dec(HHGear^.Angle, da)
-    else
-    if ((HHGear^.Message and gmDown) <> 0) and (HHGear^.Angle + da <= CurMaxAngle) then inc(HHGear^.Angle, da)
+    and ((HHGear^.State and (gstMoving or gstHHJumping)) = gstMoving) then da:= 50 else da:= 100;
+writeln(stdout,HHGear^.Angle);
+if ((TurnTimeLeft mod 20000) <= 19002) and ((TurnTimeLeft mod 20000) > 0) then
+     begin
+        if ((TurnTimeLeft mod 20000) <= 2) and ((TurnTimeLeft mod 20000) > 0) then HHGear^.Angle:=0;
+        if ((TurnTimeLeft mod 20000) <= 1002) and ((TurnTimeLeft mod 20000) >= 1000) then HHGear^.Angle:=225;
+        if ((TurnTimeLeft mod 20000) <= 2002) and ((TurnTimeLeft mod 20000) >= 2000) then HHGear^.Angle:=450;
+        if ((TurnTimeLeft mod 20000) <= 3002) and ((TurnTimeLeft mod 20000) >= 3000) then HHGear^.Angle:=675;
+        if ((TurnTimeLeft mod 20000) <= 4002) and ((TurnTimeLeft mod 20000) >= 4000) then HHGear^.Angle:=900;
+        if ((TurnTimeLeft mod 20000) <= 5002) and ((TurnTimeLeft mod 20000) >= 5000) then HHGear^.Angle:=1125;
+        if ((TurnTimeLeft mod 20000) <= 6002) and ((TurnTimeLeft mod 20000) >= 6000) then HHGear^.Angle:=1350;
+        if ((TurnTimeLeft mod 20000) <= 7002) and ((TurnTimeLeft mod 20000) >= 7000) then HHGear^.Angle:=1575;
+        if ((TurnTimeLeft mod 20000) <= 8002) and ((TurnTimeLeft mod 20000) >= 8000) then HHGear^.Angle:=1800;
+        if ((TurnTimeLeft mod 20000) <= 9002) and ((TurnTimeLeft mod 20000) >= 9000) then HHGear^.Angle:=2048;
+        if ((TurnTimeLeft mod 20000) <= 10002) and ((TurnTimeLeft mod 20000) >= 10000) then HHGear^.Angle:=1800;
+        if ((TurnTimeLeft mod 20000) <= 11002) and ((TurnTimeLeft mod 20000) >= 11000) then HHGear^.Angle:=1575;
+        if ((TurnTimeLeft mod 20000) <= 12002) and ((TurnTimeLeft mod 20000) >= 12000) then HHGear^.Angle:=1350;
+        if ((TurnTimeLeft mod 20000) <= 13002) and ((TurnTimeLeft mod 20000) >= 13000) then HHGear^.Angle:=1125;
+        if ((TurnTimeLeft mod 20000) <= 14002) and ((TurnTimeLeft mod 20000) >= 14000) then HHGear^.Angle:=900;
+        if ((TurnTimeLeft mod 20000) <= 15002) and ((TurnTimeLeft mod 20000) >= 15000) then HHGear^.Angle:=675;
+        if ((TurnTimeLeft mod 20000) <= 16002) and ((TurnTimeLeft mod 20000) >= 16000) then HHGear^.Angle:=450;
+        if ((TurnTimeLeft mod 20000) <= 17002) and ((TurnTimeLeft mod 20000) >= 17000) then HHGear^.Angle:=225;
+        if ((TurnTimeLeft mod 20000) <= 18002) and ((TurnTimeLeft mod 20000) >= 18000) then HHGear^.Angle:=0;
+        if ((TurnTimeLeft mod 20000) <= 19002) and ((TurnTimeLeft mod 20000) >= 19000) then HHGear^.dX:= HHGear^.dX * -1
+    end;
 end;
+
 
 procedure doStepHedgehog(Gear: PGear); forward;
 ////////////////////////////////////////////////////////////////////////////////
@@ -980,7 +1001,6 @@ end;
 ////////////////////////////////////////////////////////////////////////////////
 procedure doStepHedgehog(Gear: PGear);
 begin
-cArtillery := true;
 if (Gear^.Message and gmDestroy) <> 0 then
     begin
     DeleteGear(Gear);

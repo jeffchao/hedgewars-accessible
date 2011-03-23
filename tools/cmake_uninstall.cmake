@@ -1,14 +1,14 @@
-IF(NOT EXISTS "/usr/home/unC0Rr/Sources/Hedgewars/Hedgewars-GC/tools/../install_manifest.txt")
-  MESSAGE(FATAL_ERROR "Cannot find install manifest: \"/usr/home/unC0Rr/Sources/Hedgewars/Hedgewars-GC/tools/../install_manifest.txt\"")
-ENDIF(NOT EXISTS "/usr/home/unC0Rr/Sources/Hedgewars/Hedgewars-GC/tools/../install_manifest.txt")
+IF(NOT EXISTS "/home/talha/hedgewars-accessible/tools/../install_manifest.txt")
+  MESSAGE(FATAL_ERROR "Cannot find install manifest: \"/home/talha/hedgewars-accessible/tools/../install_manifest.txt\"")
+ENDIF(NOT EXISTS "/home/talha/hedgewars-accessible/tools/../install_manifest.txt")
 
-FILE(READ "/usr/home/unC0Rr/Sources/Hedgewars/Hedgewars-GC/tools/../install_manifest.txt" files)
+FILE(READ "/home/talha/hedgewars-accessible/tools/../install_manifest.txt" files)
 STRING(REGEX REPLACE "\n" ";" files "${files}")
 FOREACH(file ${files})
   MESSAGE(STATUS "Uninstalling \"$ENV{DESTDIR}${file}\"")
   IF(EXISTS "$ENV{DESTDIR}${file}")
     EXEC_PROGRAM(
-      "/usr/local/bin/cmake" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
+      "/usr/bin/cmake" ARGS "-E remove \"$ENV{DESTDIR}${file}\""
       OUTPUT_VARIABLE rm_out
       RETURN_VALUE rm_retval
       )
