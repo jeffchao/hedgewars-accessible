@@ -980,6 +980,7 @@ end;
 ////////////////////////////////////////////////////////////////////////////////
 procedure doStepHedgehog(Gear: PGear);
 begin
+cArtillery := true;
 if (Gear^.Message and gmDestroy) <> 0 then
     begin
     DeleteGear(Gear);

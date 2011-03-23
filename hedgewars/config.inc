@@ -17,5 +17,5 @@
  *)
 
 const cNetProtoVersion = 38;
-      cVersionString = '0.9.16-5011:14b2915a1404';
+      cVersionString = '0.9.16-dev';
       cLuaLibrary = 'lua';

@@ -1,0 +1,305 @@
+; German locale
+
+00:00=Granate
+00:01=Splittergranate
+00:02=Bazooka
+00:03=Zielsuchende Biene
+00:04=Schrotflinte
+00:05=Presslufthammer
+00:06=Runde überspringen
+00:07=Seil
+00:08=Mine
+00:09=Desert Eagle
+00:10=Dynamit
+00:11=Baseballschläger
+00:12=Shoryuken
+00:13=s
+00:14=Fallschirm
+00:15=Luftangriff
+00:16=Minen-Luftangriff
+00:17=Schweißbrenner
+00:18=Bauträger
+00:19=Teleporter
+00:20=Igel wechseln
+00:21=Mörser
+00:22=Peitsche
+00:23=Kamikaze
+00:24=Torte
+00:25=Verführung
+00:26=Wassermelonenbombe
+00:27=Höllische Handgranate
+00:28=Bohrkopfrakete
+00:29=Ballpistole
+00:30=Napalm-Luftangriff
+00:31=RC-Flugzeug
+00:32=Schwerkraft verringern
+00:33=Zusatzschaden
+00:34=Unverwundbarkeit
+00:35=Zusatzzeit
+00:36=Laservisier
+00:37=Vampirismus
+00:38=Scharfschützengewehr
+00:39=Fliegende Untertasse
+00:40=Molotov-Cocktail
+00:41=Birdy
+00:42=Tragbares Portal Device
+00:43=Piano-Angriff
+00:44=Alter Limburger
+00:45=Sinuskanone
+00:46=Flammenwerfer
+00:47=Haftmine
+00:48=Hammer
+00:49=Totenbeschwörung
+00:50=Bohr-Luftangriff
+00:51=Schlammball
+00:52=Keine Waffe ausgewählt
+
+
+01:00=Auf in die Schlacht!
+01:01=Unentschieden
+01:02=%1 gewinnt!
+01:03=Lautstärke: %1 %
+01:04=Pause
+01:05=Wirklich beenden (Z/Esc)?
+01:06=Sudden Death!
+01:07=%1 verbleibend
+01:08=Treibstoff
+01:09=Synchronisiere ...
+01:10=Benutzung beendet nicht die eigene Runde!
+01:11=Waffe oder Werkzeug noch nicht verfügbar!
+01:10=Benutzung beendet nicht die eigene Runde!
+01:11=Waffe oder Werkzeug noch nicht verfügbar!
+01:12=Letzte Runde bis zum Sudden Death!
+01:13=%1 Runden bis zum Sudden Death!
+01:14=Mach dich bereit, %1!
+
+; Event messages
+; Hog (%1) died
+02:00=%1 hat den Löffel abgegeben!
+02:00=%1 steht wohl nicht mehr auf!
+02:00=%1 hat's nicht geschafft!
+02:00=%1 stellt sich tot!
+02:00=%1 hat schon bessere Tage gesehen!
+02:00=%1 sieht tote Igel!
+02:00=%1 hat ins Gras gebissen!
+02:00=%1 ist Futter für die Würmer!
+02:00=Das war's wohl, %1!
+02:00=%1 hat's hinter sich!
+02:00=%1 kann schon das Licht sehen!
+02:00=Für %1 gehen alle Lichter aus!
+02:00=%1 kommt wieder!
+02:00=%1 ist urlaubsreif!
+02:00=%1 trifft seine Ahnen.
+02:00=%1 war nicht hartnäckig genug!
+02:00=%1 war einmal.
+02:00=%1 hat wohl versagt.
+02:00=Mach's gut, %1!
+
+; Hog (%1) drowned
+02:01=%1 geht auf Tauchstation!
+02:01=%1 sucht nach der Titanic!
+02:01=%1 hat ein nasses Grab gefunden!
+02:01=%1 schwimmt wie ein Stein!
+02:01=%1 hat sich nass gemacht!
+02:01=%1 versagt beim Seepferdchen!
+02:01=%1 ist ein Opfer der Gezeiten!
+02:01=%1 findet Nemo!
+02:01=%1 taucht unter ...
+02:01=Atlantis wartet, %1!
+02:01=%1 nimmt ein entspannendes Bad.
+02:01=%1 hat nie das Seepferdchen gemacht!
+02:01=%1 ist Fischfutter!
+02:01=%1 im Rausch der Tiefe!
+02:01=Was für ein feuchtes Erlebnis!
+02:01=%1 geht unter die Perlentaucher!
+02:01=%1 über Bord!
+02:01=%1 verlässt das sinkende Schiff.
+02:01=%1 überschätzt seinen Auftrieb!
+02:01=%1 erliegt dem Sog der Tiefe!
+02:01=%1 geht der Sache auf den Grund!
+02:01=%1 wäre fast verdurstet!
+
+; Round starts
+02:02=Auf in die Schlacht!
+02:02=Geladen und entsichert!
+02:02=Jetzt geht's rund!
+02:02=Los geht's!
+02:02=Alles angetreten!
+02:02=Los, los, los!
+
+; Round ends (win; unused atm)
+02:03=...
+
+; Round ends (draw; unused atm)
+02:04=...
+
+; New health crate
+02:05=Alles Gute kommt von oben!
+02:05=Linderung in Sicht!
+02:05=Das kommt gelegen!
+02:05=Jemand denkt an euch!
+02:05=Mit Liebe verpackt?
+
+; New ammo crate
+02:06=Nachschub!
+02:06=Zeit zum Nachladen!
+02:06=Was wohl darin ist?
+02:06=Bringt das die Wende?
+02:06=Tod aus der Luft!
+
+; New utility crate
+02:07=Nützliches?
+02:07=Tooltime!
+02:07=Was wohl darin ist?
+02:07=Lieferung frei Haus!
+02:07=Mehr als nur eine Kiste!
+
+; Hog (%1) skips his turn
+02:08=%1 ist so ein Langeweiler ...
+02:08=%1 denkt weiter nach ...
+02:08=Das war öde, %1!
+02:08=%1 führt etwas im Schilde!
+02:08=%1 setzt aus.
+02:08=%1 ist ein Drückeberger.
+02:08=%1 überdenkt die Situation.
+02:08=%1 kann sich nicht entscheiden.
+
+; Hog (%1) hurts himself only
+02:09=%1 sollte besser Zielen üben!
+02:09=%1 scheint sich zu hassen.
+02:09=%1 steht auf der falschen Seite!
+02:09=%1 lebt gefährlich!
+
+; Hog (%1) shot an home run (using the bat and another hog)
+02:10=Home Run!
+02:10=Ein Vogel, ein Flugzeug, ...
+02:10=Der verleiht Flügel!
+
+; Hog (%1) has to leave (team is gone)
+02:11=%1 muss ins Bett!
+02:11=%1 scheint zu beschäftigt zu sein
+02:11=Beam ihn hoch, Scotty!
+02:11=%1 muss weg
+
+; Weapon Categories
+03:00=Zeitzünder-Granate
+03:01=Zeitzünder-Granate
+03:02=Ballistische Waffe
+03:03=Vorsicht, sticht!
+03:04=Gewehr (mehrere Schüsse)
+03:05=Grabwerkzeug
+03:06=Aktion
+03:07=Fortbewegungsmittel
+03:08=Annäherungsmine
+03:09=Pistole (mehrere Schüsse)
+03:10=BOOM!
+03:11=Bonk!
+03:12=Kampfkunst
+03:13=UNUSED
+03:14=Fortbewegungsmittel
+03:15=Luftschlag
+03:16=Luftschlag
+03:17=Grabwerkzeug
+03:18=Werkzeug
+03:19=Fortbewegungsmittel
+03:20=Aktion
+03:21=Ballistische Waffe
+03:22=Nenn mich Indiana!
+03:23=Kampfkunst
+03:24=Der Kuchen ist keine Lüge!
+03:25=Verkleidung
+03:26=Saftige Granate
+03:27=Feurige Granate
+03:28=Ballistische Waffe
+03:29=Ballistische Waffe
+03:30=Luftschlag
+03:31=Ferngesteuerte Bombe
+03:32=Temporärer Effekt
+03:33=Temporärer Effekt
+03:34=Temporärer Effekt
+03:35=Temporärer Effekt
+03:36=Temporärer Effekt
+03:37=Temporärer Effekt
+03:38=Gewehr (mehrere Schüsse)
+03:39=Fortbewegungsmittel
+03:40=Brandbombe
+03:41=Riesiger Squawks-Fan
+03:42=Portalöffner
+; the misspelled "Beethoven" is intentional (-> to beat)
+03:43=Spiele Beathovens tödliche Sonate!
+03:44=Ziemlich alt und stinkig
+03:45=Die Macht der Wissenschaft
+03:46=Heiß heiß heiß!
+03:47=Mach es weg!
+03:48=Stop! Hammer time!
+03:49=Tut, was man vermutet
+
+; Weapon Descriptions (use | as line breaks)
+04:00=Greife deine Feinde mit einfachen Granaten an.|Der Zeitzünder steuert den Explosionszeitpunkt.|1-5: Zeitzünder einstellen|Angriff: Halten, um mit mehr Kraft zu werfen
+04:01=Greife deine Feinde mit Splittergranaten an.|Der Zeitzünder wird die Granate in mehrere|kleine Bomben zerspringen lassen.|1-5: Zeitzünder einstellen|Angriff: Halten, um mit mehr Kraft zu werfen
+04:02=Greife deine Feinde mit einem ballistischen|Projektil an, das vom Wind beeinflusst wird.|Angriff: Halten, um mit mehr Kraft zu feuern
+04:03=Starte eine explosive Biene, die auf ein gewähltes|Ziel zusteuern wird. Feuere nicht mit voller Kraft,|um die Zielgenauigkeit zu verbessern.|Cursor: Ziel wählen|Angriff: Halten, um mit mehr Kraft zu feuern
+04:04=Greife deine Feinde mit einer Schrotflinte und|zwei Schüssen an. Durch die Streuung musst du|nicht genau zielen, um trotzdem zu treffen.|Angriff: Feuern (mehrfach)
+04:05=Ab in den Untergrund! Benutze den Presslufthammer,|um einen Schacht nach unten zu graben und so|andere Gebiete zu erreichen.|Angriff: Presslufthammer ein- oder ausschalten
+04:06=Gelangweilt? Keine Optionen? Munition sparen?|Kein Problem! Passe einfach diese Runde, Feigling!|Angriff: Runde ohne Angriff aussetzen
+04:07=Überbrücke große Distanzen mit gezielt abgefeuerten|Seilschüssen. Benutze deine Bewegungsenergie, um|andere Igel zu schubsen oder wirf vom Seil aus Granaten|und ähnliche Waffen.|Angriff: Seil abfeuern oder lösen|Weiter Sprung: Waffe benutzen
+04:08=Halte dir deine Feinde fern oder blockiere sie,|indem du ihnen Minen vor die Beine wirfst.|Sei aber schnell genug, damit du sie nicht noch|selbst auslöst!|Angriff: Mine legen
+04:09=Nicht so ganz zielsicher? Versuche es mit der|Desert Eagle, denn diese bietet dir vier Schuss.|Angriff: Feuern (mehrfach)
+04:10=Pure Gewalt ist immer eine Option. Lege einfach|diesen klassischen Sprengsatz neben deinen Feinden|ab und mach dich aus dem Staub.|Angriff: Dynamitstange legen
+04:11=Beseitige Feinde, indem du diese mit dem|Baseballschläger einfach von der Karte fegst.|Oder wie wäre es, wenn du deinen Freunden ein|paar Minen vor die Beine schlägst?|Angriff: Alles vor dem Igel schlagen
+04:12=Rücke mit deinen Feinden näher zusammen und|entfessle die Kraft dieser so gut wie tödlichen|Kampftechnik.|Angriff: Feuerfaust einsetzen
+04:13=UNUSED
+04:14=Höhenangst? Greif besser zum Fallschirm.|Er wird sich von alleine entfalten, wenn du|zu lange oder zu tief fällst, und so deinem|Igel den Hals retten.|Angriff: Fallschirm öffnen|Weiter Sprung: Waffe benutzen
+04:15=Rufe ein Flugzeug, um deine Feinde mit einem|Bombenteppich einzudecken.|Links/Rechts: Angriffsrichtung wählen|Cursor: Zielgebiet wählen und Angriff starten
+04:16=Rufe ein Flugzeug, um mehrere Minen im|Zielgebiet abwerfen zu lassen.|Links/Rechts: Angriffsrichtung wählen|Cursor: Zielgebiet wählen und Angriff starten
+04:17=Unterschlupf gefällig? Benutze den Schweißbrenner,|um einen Tunnel in festen Untergrund zu graben|oder einem Feind eine heiße Bekanntschaft machen|zu lassen.|Angriff: Brenner ein- oder ausschalten
+04:18=Brauchst du Schutz oder eine Möglichkeit, einen|Abgrund zu überwinden? Platziere einige Bauträger,|um dir zu helfen.|Links/Rechts: Bauform und Orientierung wählen|Cursor: Bauträger platzieren
+04:19=Im richtigen Moment kann sich eine Teleportation|mächtiger als jede Waffe erweisen, da sich so ein|Igel gezielt einer gefährlichen Situation binnen|Sekunden entziehen kann.|Cursor: Zielposition wählen
+04:20=Erlaubt es dir, den aktiven Igel zu wechseln|und mit einem anderen Igel fortzufahren.|Angriff: Wechsel aktivieren
+04:21=Feuere ein granatenartiges Projektil in die|Richtung deines Gegners, das beim Aufschlag|mehrere kleine Bomben freisetzen wird.|Angriff: Mit voller Kraft feuern
+04:22=Nicht nur etwas für Indiana Jones! Die Peitsche|eignet sich besonders gut, um ungezogene Igel|eine Klippe hinunter zu treiben.|Angriff: Alles vor dem Igel schlagen
+04:23=Wenn man nichts mehr zu verlieren hat ...|Opfere deinen Igel, indem du ihn in eine|festgelegte Richtung losstürmen lässt.|Er wird alles auf dem Weg treffen und am|Ende selbst explodieren.|Angriff: Tödlichen Angriff starten
+04:24=Alles Gute! Schick diesen Kuchen auf den Weg,|damit er deinen lieben Feinden eine explosive|Party beschert. Die Torte überwindet fast jedes|Terrain, verliert dabei aber an Laufzeit.|Angriff: Torte losschicken explodieren lassen
+04:25=Benutze diese Verkleidung, um einen Feind blind|vor Liebe in deine Richtung (und damit in einen|Abgrund oder ähnliches) springen zu lassen.|Angriff: Verkleiden und verführen
+04:26=Wirf diese saftige Wassermelone auf deine Feinde.|Sobald die Zeit abgelaufen ist, wird sie in|einzelne und explosive Stücke zerspringen.|Angriff: Halten, um mit mehr Kraft zu werfen
+04:27=Entfessle das Höllenfeuer und umgebe deine|Widersacher damit, indem du diesen teuflischen|Sprengsatz gegen sie einsetzt. Komm ihr aber|nicht zu nahe, denn die Flammen könnten|länger bestehen bleiben.|Angriff: Halten, um mit mehr Kraft zu werfen
+04:28=Kurz nach dem Start wird diese Rakete beginnen,|sich durch soliden Grund zu graben. Sobald sie|wieder austritt oder der Zeitzünder abläuft,|wird sie explodieren.|Angriff: Halten, um mit mehr Kraft zu feuern
+04:29=Das ist nichts für kleine Kinder! Die Ballpistole|feuert Tonnen kleiner farbiger Bälle, die mit|Sprengstoff gefüllt sind.|Angriff: Mit voller Kraft feuern|Hoch/Runter: Im Feuern zielen
+04:30=Rufe ein Flugzeug, um ein Areal gezielt mit|tödlichem Napalm einzudecken. Gut gezielt|lassen sich so große Teile der Karte auslöschen.|Links/Rechts: Angriffsrichtung wählen|Cursor: Zielgebiet wählen und Angriff starten
+04:31=Das RC-Flugzeug kann Kisten einsammeln und weit|entfernte Igel angreifen. Steuere es direkt in|ein Opfer oder wirf erst einige Bomben ab.|Angriff: Flugzeug starten und Bomben abwerfen|Weiter Sprung: "Ritt der Walküren"|Hoch/Runter: Flugzeug lenken
+04:32=Niedrige Schwerkraft ist effektiver als jede|Diät! Springe höher und weiter oder lass|einfach deine Gegner noch weiter fliegen.|Angriff: Aktivieren
+04:33=Manchmal muss es eben doch ein bisschen|mehr sein ...|Angreifen: Aktivieren
+04:34=Can't touch me!|Angreifen: Aktivieren
+04:35=Manchmal vergeht die Zeit einfach zu schnell.|Schnapp dir einige zusätzliche Sekunden, um|deinen Angriff abzuschließen.|Angriff: Aktivieren
+04:36=Nun, manchmal trifft man einfach nicht. In solchen|Fällen kann die moderne Technik natürlich nachhelfen.|Angriff: Aktivieren
+04:37=Fürchte nicht das Tageslicht! Die Wirkung hält|nur eine Runde an, aber sie erlaubt es deinem|Igel, den Schaden, den er direkt verursacht|als Leben zu absorbieren.|Angreifen: Aktivieren
+04:38=Das Scharfschützengewehr kann die vernichtendste|Waffe im gesamten Arsenal sein, allerdings ist|es auf kurze Distanz sehr ineffektiv. Der|verursachte Schaden nimmt mit der Distanz zu.|Angriff: Feuern (mehrfach)
+04:39=Fliege mit der fliegenden Untertasse in andere|Teile der Karte. Sie ist schwer zu beherrschen,|bringt dich aber an so gut wie jeden Ort.|Angriff: Aktivieren|Hoch/Links/Rechts: Beschleunigen|Weiter Sprung: Waffe benutzen
+04:40=Entzünde einen Teil der Landschaft oder auch etwas|mehr mit dieser (schon bald) brennenden Flüssigkeit.|Angriff: Halten, um mit mehr Kraft zu werfen
+04:41=Der Beweis, dass die Natur sogar die fliegende|Untertasse übertreffen könnte. Birdy kann|deinen Igel herumtragen und zudem Eier auf|deine Feinde fallen lassen.|Angriff: Aktivieren und Eier fallen lassen|Hoch/Links/Rechts: In eine Richtung flattern
+04:42=Das tragbare Portal Device ermöglicht es dir,|dich, deine Feinde oder Waffen direkt zwischen|zwei Punkten auf der Karte zu|teleportieren.|Benutze es weise und deine Kampagne wird ein...|RIESENERFOLG!|Angriff: Öffnet ein Portal|Wechsel: Wechsle die Portalfarbe
+04:43=Lass dein musikalisches Debüt einschlagen wie eine Bombe!|Lass ein Piano vom Himmel fallen, aber pass auf...|jemand muss es spielen und das könnte dich |dein Leben kosten!|Cursor: Zielgebiet wählen und Angriff starten|F1-F9: Spiel das Piano
+04:44=Das ist nicht nur Käse, das ist biologische Kriegsführung!|Er wird nicht viel Schaden verursachen, sobald der Zünder|abgelaufen ist, aber er wird garantiert jeden in der Nähe|vergiften!|1-5: Zeitzünder einstellen|Angriff: Halten, um mit mehr Kraft zu werfen
+04:45=All die Physikstunden haben sich endlich|bezahlt gemacht: Entfessle eine zerstörerische Sinuswelle|gegen deine Feinde.|Pass auf, die Waffe erzeugt einen ordentlichen Rückstoß.|(Diese Waffe ist unvollständig)|Angriff: Sinuswellen erzeugen
+04:46=Brutzle deine Feinde mit fließenden Flammen.|Herzerwärmend!|Angriff: Aktivieren|Hoch/Runter: Im Feuern zielen|Links/Rechts: Durchfluss ändern
+04:47=Verdopple den Spaß mit zwei spitzigen, schicken, klebrigen Minen.|Löse eine Kettenreaktion aus oder beschütze dich (oder beides).|Angriff: Halten, um mit mehr Kraft zu feuern (zweimal)
+04:48=Warum sind Maulwürfe verhasst? Einen|Igel in den Boden zu stampfen kann sehr lustig sein!|Ein guter Treffer des Hammers wird ein Drittel|der Lebenspunkte eines Igels abziehen und ihn|im Boden versenken.|Angriff: Aktivieren
+04:49=Hol deine Freunde zurück!|Aber pass auf, dass du keine Feinde beschwörst.|Angriff: Gedrückt halten, um Igel langsam wiederauferstehen zu lassen.|Hoch: Beschleunige Totenbeschwörung
+
+; Game goal strings
+05:00=Spielmodifikationen
+05:01=Die folgenden Regeln gelten
+05:02=Festungen: Verteidige deine Festung; vertreibe deine Feinde!
+05:03=Niedrige Schwerkraft: Pass auf, wo du hintrittst
+05:04=Unverwundbarkeit: Igel sind (so gut wie) unkaputtbar
+05:05=Vampirismus: Igel heilen sich um den von ihnen verursachten Schaden
+05:06=Karma: Igel leiden an dem von ihnen verursachten Schaden
+05:07=Schützt den König: Beschütze ihn um jeden Preis!|König platzieren: Wähle einen sicheren Startpunkt für deinen König
+05:08=Igel platzieren: Wähle vor dem Spielstart die Positionen deiner Igel
+05:09=Artillerie: Deine Igel können nicht laufen
+05:10=Unzerstörbares Terrain: Explosionen zerstören den Boden nicht
+05:11=Gemeinsames Arsenal: Alle Teams gleicher Farbe teilen sich ihr Arsenal
+05:12=Minenzünder: Minen explodieren nach %1 Sekunde(n)
+05:13=Minenzünder: Minen explodieren sofort
+05:14=Minenzünder: Minen explodieren nach 0 - 3 Sekunden
+05:15=Prozentualer Schaden: Alle Waffen verursachen %1 % Schaden

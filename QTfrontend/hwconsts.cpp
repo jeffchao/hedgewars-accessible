@@ -21,7 +21,7 @@
 QString * cProtoVer = new QString("38");
 QString * cDataDir = new QString("../Resources/");
 QString * cConfigDir = new QString("");
-QString * cVersionString = new QString("0.9.16-5011:14b2915a1404");
+QString * cVersionString = new QString("0.9.16-dev");
 
 QDir * bindir = new QDir("Hedgewars.app/Contents/MacOS/");
 QDir * cfgdir = new QDir();

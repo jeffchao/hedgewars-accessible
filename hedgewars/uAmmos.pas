@@ -310,8 +310,7 @@ with Hedgehog do
 
     CurWeapon:= GetAmmoEntry(Hedgehog);
 
-    if (CurWeapon^.Count = 0) then
-        SwitchToFirstLegalAmmo(Hedgehog);
+    SwitchToFirstLegalAmmo(Hedgehog);
 
     CurWeapon:= GetAmmoEntry(Hedgehog);
 
