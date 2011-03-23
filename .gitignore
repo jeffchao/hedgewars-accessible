@@ -3,6 +3,8 @@
 ._*
 .Spotlight-v100
 .Trashes
+*.app
+*.cxx
 
 # Linux
 *.sw[a-p]
